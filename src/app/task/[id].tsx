@@ -5,18 +5,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
-import { DomainIcon } from '@/components/domain-icon';
+import { DomainChips } from '@/components/domain-chips';
 import { EnergySegment } from '@/components/energy';
 import { Text } from '@/components/text';
 import { TextField } from '@/components/text-field';
 import { db } from '@/db/client';
 import { useDomains, useSettings } from '@/db/hooks';
+import { convertNoteToTask } from '@/db/repos/notes';
 import { archiveTask, createTask, getTask, updateTask } from '@/db/repos/tasks';
 import type { Task } from '@/db/schema';
-import { addDaysToKey, dueLabel } from '@/lib/dates';
+import { dueChoices } from '@/features/tasks/logic';
+import { dueLabel } from '@/lib/dates';
 import { haptic } from '@/lib/haptics';
 import { useToday } from '@/lib/use-today';
-import { domainColors } from '@/theme/domain-colors';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/use-theme';
 
@@ -29,13 +30,23 @@ export default function TaskEditor() {
   const today = useToday();
   const domains = useDomains();
   const { hiddenDomainIds } = useSettings();
-  const params = useLocalSearchParams<{ id: string; dueDate?: string; domainId?: string }>();
+  const params = useLocalSearchParams<{
+    id: string;
+    dueDate?: string;
+    domainId?: string;
+    // Prefill, from the Capture sheet's "More options" or an inbox note.
+    title?: string;
+    notes?: string;
+    energy?: Task['energy'];
+    fromNote?: string;
+  }>();
   const isNew = params.id === 'new';
+  const fromNote = isNew ? params.fromNote : undefined;
 
-  const [title, setTitle] = useState('');
-  const [notes, setNotes] = useState('');
+  const [title, setTitle] = useState(isNew ? (params.title ?? '') : '');
+  const [notes, setNotes] = useState(isNew ? (params.notes ?? '') : '');
   const [domainId, setDomainId] = useState<string | null>(params.domainId ?? null);
-  const [energy, setEnergy] = useState<Task['energy']>('medium');
+  const [energy, setEnergy] = useState<Task['energy']>(isNew ? (params.energy ?? 'medium') : 'medium');
   const [dueDate, setDueDate] = useState<string | null>(params.dueDate ?? null);
   const [estimateMin, setEstimateMin] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(isNew);
@@ -66,20 +77,11 @@ export default function TaskEditor() {
   const defaultDomainId = (domains.find((d) => !hiddenDomainIds.includes(d.id)) ?? domains[0])?.id ?? null;
   const activeDomainId = domainId ?? defaultDomainId;
 
-  const dueOptions = useMemo(() => {
-    const base: { label: string; value: string | null }[] = [
-      { label: 'No date', value: null },
-      { label: 'Today', value: today },
-      { label: 'Tomorrow', value: addDaysToKey(today, 1) },
-      { label: 'In a week', value: addDaysToKey(today, 7) },
-    ];
-    // Keep an existing custom date visible and selected.
-    if (dueDate && !base.some((o) => o.value === dueDate)) base.splice(1, 0, { label: dueLabel(dueDate, today), value: dueDate });
-    return base;
-  }, [today, dueDate]);
+  const dueOptions = useMemo(() => dueChoices(today, dueDate, (k) => dueLabel(k, today)), [today, dueDate]);
 
   const canSave = loaded && title.trim().length > 0 && activeDomainId !== null && !saving;
-  const dirtyNew = isNew && (title.trim().length > 0 || notes.trim().length > 0);
+  // Coming from an inbox note, cancelling loses nothing: the note is still in the inbox.
+  const dirtyNew = isNew && !fromNote && (title.trim().length > 0 || notes.trim().length > 0);
 
   const close = () => {
     if (dirtyNew) {
@@ -97,7 +99,8 @@ export default function TaskEditor() {
     setSaving(true);
     try {
       const input = { title, notes, domainId: activeDomainId, energy, dueDate, estimateMin };
-      if (isNew) await createTask(db, input);
+      if (fromNote) convertNoteToTask(db, fromNote, input);
+      else if (isNew) await createTask(db, input);
       else await updateTask(db, params.id, input);
       haptic('success');
       router.back();
@@ -160,22 +163,7 @@ export default function TaskEditor() {
 
         <View style={{ gap: spacing.sm }}>
           <Text variant="label">Life domain</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-            {domains.map((d) => {
-              const c = domainColors(t, d.color);
-              return (
-                <Chip
-                  key={d.id}
-                  label={d.name}
-                  selected={activeDomainId === d.id}
-                  accent={c.main}
-                  tint={c.soft}
-                  icon={<DomainIcon name={d.icon} color={c.main} />}
-                  onPress={() => setDomainId(d.id)}
-                />
-              );
-            })}
-          </View>
+          <DomainChips domains={domains} selectedId={activeDomainId} onSelect={setDomainId} />
         </View>
 
         <View style={{ gap: spacing.sm }}>

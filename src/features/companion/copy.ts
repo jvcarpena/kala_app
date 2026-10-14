@@ -115,3 +115,16 @@ export function recordLine(v: Voice, count: number): string {
   if (!chatty(v)) return `${count} new personal ${plural}`;
   return v.language === 'taglish' ? `${count} bagong ${plural}!` : `${count} new personal ${plural}!`;
 }
+
+export function inboxEmpty(v: Voice): { title: string; body: string } {
+  const taglish = v.language === 'taglish' && chatty(v);
+  return {
+    title: taglish ? 'Wala pang laman ang inbox' : 'Your inbox is empty',
+    body: 'Capture a quick note with the + button. You can turn it into a task later.',
+  };
+}
+
+/** Line under the Inbox heading. */
+export function inboxLine(count: number): string {
+  return count === 1 ? '1 note to sort' : `${count} notes to sort`;
+}

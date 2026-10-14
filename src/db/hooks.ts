@@ -7,6 +7,7 @@ import type { HistorySet } from '@/features/fitness/logic';
 
 import { db } from './client';
 import { doneTasksQuery, focusSessionsQuery, habitLogsQuery, toActivityEvents, workoutsQuery } from './queries';
+import { inboxNotesQuery } from './repos/notes';
 import { historyQuery, toHistory } from './repos/workouts';
 import {
   domains,
@@ -55,6 +56,11 @@ export function useHabitLogs(): Map<string, Map<string, number>> {
     }
     return byHabit;
   }, [data]);
+}
+
+/** Notes that haven't been turned into a task or archived, newest first. */
+export function useInboxNotes() {
+  return useLiveQuery(inboxNotesQuery(db)).data;
 }
 
 export function useSettings(): Settings {

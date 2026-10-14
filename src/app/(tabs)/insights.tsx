@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
 import { ActivityHeatmap } from '@/components/activity-heatmap';
@@ -9,13 +10,18 @@ import { useToday } from '@/lib/use-today';
 import { spacing } from '@/theme/tokens';
 
 export default function InsightsScreen() {
+  const router = useRouter();
   const today = useToday();
   const domains = useDomains();
   const events = useActivityEvents();
   const settings = useSettings();
 
   return (
-    <Screen title="Insights" subtitle="How consistent you've been">
+    <Screen
+      title="Insights"
+      subtitle="How consistent you've been"
+      onAdd={() => router.push('/capture')}
+      addLabel="Capture">
       <ActivityHeatmap
         events={events}
         domains={domains}

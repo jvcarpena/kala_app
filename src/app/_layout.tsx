@@ -87,6 +87,12 @@ export default function RootLayout() {
         {/* Declared first so the app opens on Today. The first screen listed is the default route. */}
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
+        {/* The sheet draws its own backdrop and rounded top (the native formSheet didn't render in Expo Go). */}
+        <Stack.Screen
+          name="capture"
+          options={{ presentation: 'transparentModal', animation: 'slide_from_bottom', contentStyle: { backgroundColor: 'transparent' } }}
+        />
+        <Stack.Screen name="inbox" options={{ presentation: 'modal' }} />
         <Stack.Screen name="task/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="habit/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="focus-mode" options={{ presentation: 'modal' }} />

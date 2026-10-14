@@ -4,6 +4,8 @@ import {
   greeting,
   habitReminderBody,
   habitsLine,
+  inboxEmpty,
+  inboxLine,
   overdueBody,
   overdueHeading,
   recordLine,
@@ -122,5 +124,19 @@ describe('fitness copy', () => {
     expect(fitnessEmpty(taglish).title).toBe('Wala pang workout');
     expect(fitnessEmpty(english).title).toBe('No workouts yet');
     expect(fitnessEmpty(quiet).body).toContain('template');
+  });
+});
+
+describe('inbox copy', () => {
+  it('has an empty state in Taglish, English and quiet', () => {
+    expect(inboxEmpty(taglish).title).toBe('Wala pang laman ang inbox');
+    expect(inboxEmpty(english).title).toBe('Your inbox is empty');
+    expect(inboxEmpty(quiet).title).toBe('Your inbox is empty');
+    expect(inboxEmpty(english).body).toContain('+ button');
+  });
+
+  it('counts notes', () => {
+    expect(inboxLine(1)).toBe('1 note to sort');
+    expect(inboxLine(4)).toBe('4 notes to sort');
   });
 });

@@ -1,6 +1,5 @@
 import type { Domain, Task } from '@/db/schema';
-import type { DateKey } from '@/lib/dates';
-import { dateKey } from '@/lib/dates';
+import { addDaysToKey, dateKey, type DateKey } from '@/lib/dates';
 
 export type Energy = Task['energy'];
 export type EnergyFilter = 'any' | Energy;
@@ -65,4 +64,18 @@ export function groupOpenByDomain(tasks: Task[], domains: Domain[]): DomainGroup
   return [...domains]
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((domain) => ({ domain, tasks: open.filter((t) => t.domainId === domain.id) }));
+}
+
+export type DueChoice = { label: string; value: DateKey | null };
+
+/** The quick due-date chips. A custom date already on the task stays visible after "No date". */
+export function dueChoices(today: DateKey, current: DateKey | null, labelFor: (key: DateKey) => string): DueChoice[] {
+  const base: DueChoice[] = [
+    { label: 'No date', value: null },
+    { label: 'Today', value: today },
+    { label: 'Tomorrow', value: addDaysToKey(today, 1) },
+    { label: 'In a week', value: addDaysToKey(today, 7) },
+  ];
+  if (current && !base.some((o) => o.value === current)) base.splice(1, 0, { label: labelFor(current), value: current });
+  return base;
 }

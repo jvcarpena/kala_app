@@ -8,6 +8,7 @@ import { Card } from '@/components/card';
 import { EnergySegment } from '@/components/energy';
 import { FocusChip } from '@/components/focus-chip';
 import { HabitStrip } from '@/components/habit-strip';
+import { InboxButton } from '@/components/inbox-button';
 import { Kala } from '@/components/kala/kala';
 import { OverdueCard } from '@/components/overdue-card';
 import { Screen } from '@/components/screen';
@@ -63,9 +64,14 @@ export default function TodayScreen() {
     <Screen
       title="Today"
       subtitle={`${format(keyToDate(today), 'EEEE d MMMM')} · ${activity.filter((e) => e.date === today).length} done`}
-      headerRight={<FocusChip />}
-      onAdd={() => router.push({ pathname: '/task/[id]', params: { id: 'new', dueDate: today } })}
-      addLabel="Add task">
+      headerRight={
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+          <FocusChip />
+          <InboxButton />
+        </View>
+      }
+      onAdd={() => router.push({ pathname: '/capture', params: { dueDate: today } })}
+      addLabel="Capture">
       {showKala ? (
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md }}>
           <Kala pose={openCount === 0 && doneToday.length > 0 ? 'yay' : 'hello'} size={72} />

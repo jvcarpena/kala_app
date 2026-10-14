@@ -64,10 +64,8 @@ export default function TasksScreen() {
       title="Tasks"
       subtitle={`${openTotal} to do`}
       headerRight={<FocusChip />}
-      onAdd={() =>
-        router.push({ pathname: '/task/[id]', params: { id: 'new', ...(domainId ? { domainId } : {}) } })
-      }
-      addLabel="Add task">
+      onAdd={() => router.push({ pathname: '/capture', params: domainId ? { domainId } : {} })}
+      addLabel="Capture">
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm }}>
         <Chip label="All" selected={domainId === null} onPress={() => setDomainId(null)} />
         {visibleDomains.map((d) => {

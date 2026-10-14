@@ -1,6 +1,6 @@
 # Kala: project status and roadmap
 
-*Last updated 14 Oct 2026. Read this first, then `design-system/kala/MASTER.md` (the design spec, sections 1 to 14).*
+*Last updated 14 Oct 2026 (after the quick-note inbox). Read this first, then `design-system/kala/MASTER.md` (the design spec, sections 1 to 14).*
 
 Kala ("Kala: kala ko tapos na", Filipino for "I thought it was done") is an **offline-first life planner** for work, study, fitness and daily routines, with a koala companion named Kala. Expo / React Native, TypeScript, SQLite on the device. **No server, no account.** Backup will be a manual JSON export.
 
@@ -31,7 +31,7 @@ npx expo start --android                                 # other terminal, proje
 
 ## 2. What is built and working
 
-Everything below was exercised on the emulator unless marked otherwise. **153 tests**, `tsc` and `expo lint` all pass.
+Everything below was exercised on the emulator unless marked otherwise. **178 tests**, `tsc` and `expo lint` all pass.
 
 | Feature | Where | Notes |
 |---|---|---|
@@ -45,6 +45,7 @@ Everything below was exercised on the emulator unless marked otherwise. **153 te
 | **Activity grid** | `src/features/activity`, `src/components/activity-heatmap.tsx`, `app/(tabs)/insights.tsx` | GitHub-style grid on Insights, per-domain filter, streaks. Counts finished tasks, habits that reached their goal, **completed** focus sessions and finished workouts. |
 | **Focus timer (pomodoro)** | `src/features/focus-timer`, `app/focus/[taskId].tsx`, `src/components/timer-*.tsx` | Timestamp-based, survives backgrounding/restart (state lives in `settings.activeTimer`). Pause, resume, break, rounds, mini pill on every tab, keeps screen awake. |
 | **Fitness** | `src/features/fitness`, `src/db/repos/workouts.ts`, `app/(tabs)/fitness.tsx`, `app/workout/template/[id].tsx`, `app/workout/session/[id].tsx`, `src/components/{set-row,rest-dock,workout-pill,workout-engine}.tsx` | Workout templates (starter push/pull/legs, or your own), start a workout from one, log sets (tap weight/reps to edit with a -/+ 2.5 kg stepper, checkbox completes a set and starts that exercise's **rest timer** with +30s / Skip), add or remove sets and exercises, "Last time: 4 × 8 @ 57.5 kg" under each exercise, and each set starts from what you did last time. Finish shows a summary (duration, volume, sets) and **personal records**. One workout at a time; a floating pill and a resume card bring you back. Weights in kg. Counts toward the activity grid under Health. |
+| **Capture sheet + Inbox** | `src/app/capture.tsx`, `src/app/inbox.tsx`, `src/components/{inbox-button,domain-chips,segmented}.tsx`, `src/db/repos/notes.ts`, `src/features/notes/logic.ts` | The + on **Today, Tasks and Insights** opens a bottom sheet with **Note** (default, keyboard up) · **Task** (title, domain, energy, due, "More options" opens the full editor) · **Log** (today's habits, same controls as the Habits tab). Habits and Fitness keep their own + editors. Cancel, backdrop tap or Android back with a non-empty draft asks "Discard this?". Today's header has an **Inbox** icon with a count badge. The Inbox lists unprocessed notes: **Turn into task** opens the task editor prefilled (first line is the title, the rest goes to notes) and saving creates the task and marks the note processed **in one transaction**; **Archive** marks it processed with no task. |
 | **Companion copy** | `src/features/companion/copy.ts` | All of Kala's lines, Taglish or English, Chatty/Quiet/Off. Every line has a test. |
 | **Test setup** | `src/test/make-db.ts` | Real in-memory SQLite (better-sqlite3) with the app's migrations, so repos and queries are tested against real SQL. |
 
@@ -52,13 +53,13 @@ Everything below was exercised on the emulator unless marked otherwise. **153 te
 
 ## 3. What is left, in suggested order
 
-Specs for most of these already exist in `MASTER.md` (section numbers in brackets). The `notes` table that 3.1 needs already exists in the schema. (Item 3.2, Fitness, is done: see section 2.)
+Specs for most of these already exist in `MASTER.md` (section numbers in brackets). (The Fitness core and the quick-note inbox are done: see section 2.)
 
-### 3.1 Quick-note inbox + capture sheet  [spec 7.7]
-- `notes` table exists (`body`, `domainId`, `processed`, `convertedTaskId`). No UI.
-- Today's header should get an **Inbox** icon with a count badge, and a **Settings** gear (the header currently only has the Focus Mode chip).
-- Design: the + button on every tab opens one **Capture sheet** with Note / Task / Log segments (Note first, keyboard up). Today each tab's + button opens the task or habit editor directly. Decide whether to switch to the sheet everywhere.
-- Inbox screen: list unprocessed notes, "Turn into task" (prefilled editor) or "Archive".
+### 3.1 Capture follow-ups (the core is built, see section 2)
+- Swipe-down to close the Capture sheet (today: Cancel, backdrop tap or back). A snackbar or toast after saving, and an Undo for Archive: there is no snackbar component yet.
+- Log segment has no **weight** entry: there is no body-weight table yet (comes with the Fitness follow-ups in 3.2).
+- Notes have no domain and no search. Archived notes are kept in the table but there is no screen to see or restore them.
+- The **Settings gear** in the Today header is not added: it arrives with the Settings screen (3.5).
 
 ### 3.2 Fitness follow-ups (the core is built, see section 2)  [spec section 15]
 - **Rest-over notification.** The rest timer only buzzes in the app. A local notification when it ends (so it works with the screen off) needs a real build, like 3.8. `WorkoutEngine` is where it would go; copy the pattern in `src/features/focus-timer/alerts.ts`.
@@ -115,6 +116,7 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 - **Streaks count scheduled days only;** rest days never break one; today stays pending until it ends.
 - **Delete means archive** (soft delete) so history survives. (Workout templates are the exception: deleting one keeps past sessions, which keep their own copy of the sets.)
 - **Weights are in kilograms.** A workout only saves the sets you checked off; unchecked ones are dropped on finish. A first time doing an exercise sets a baseline, not a record.
+- **The + button is hybrid.** Today, Tasks and Insights open the Capture sheet; Habits and Fitness keep opening their own editors, because a new habit or workout template isn't a quick capture.
 - **Two different "focus" features, named apart in code:** `src/features/focus` is **Focus Mode** (hide domains); `src/features/focus-timer` is the **pomodoro timer**.
 
 ---
@@ -137,6 +139,9 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 14. **`createdAt` columns have one-second resolution** (`unixepoch() * 1000`), so rows created in the same second tie. Never rely on `createdAt` alone for ordering. Templates are ordered oldest-first so the starter set stays Push, Pull, Leg.
 15. **The emulator keeps its data between runs** (the app's SQLite file survives). That is how a new migration was tested against an existing database. To start clean, clear Expo Go's storage on the emulator.
 16. **Scripted `adb input tap` breaks when the layout moves**: dialogs sit in a different place depending on whether the keyboard is up. Take a screenshot between steps and tap from what you see.
+17. **The native `formSheet` presentation did not render in Expo Go on Android** (the screen mounted and the keyboard came up, but no sheet was drawn). The Capture sheet is a `transparentModal` route that draws its own backdrop and rounded top, in `src/app/capture.tsx`. Not tested on iOS.
+18. **Call `Keyboard.dismiss()` before closing a screen that has the keyboard up.** Saving the Capture sheet with the keyboard open left the Android window short of its full height (white strip under the tab bar) until the app restarted.
+19. **DB transactions are synchronous.** Drizzle's expo-sqlite driver runs `db.transaction((tx) => { ...; tx.insert(...).run() })` without `await`, and better-sqlite3 does the same, so one function works in the app and in tests. See `convertNoteToTask`. Throwing inside rolls everything back.
 
 ---
 
@@ -154,7 +159,6 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 ## 7. Open questions for the owner
 
 - Should Today get the Day Ring? It means tasks need start times (3.6).
-- Should the + button everywhere open the Capture sheet (Note / Task / Log), or keep opening the task or habit editor?
 - Keep Atkinson's slashed zero, or change the body font?
 - Do the Taglish lines read naturally to a native speaker? They are first drafts.
 - Distribution plan: personal APK, Play Store, or TestFlight? That sets bundle ids, the build route and icon work.
