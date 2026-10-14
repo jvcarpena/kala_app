@@ -14,11 +14,13 @@ const createdAt = () =>
 export const domains = sqliteTable('domains', {
   id: id(),
   name: text('name').notNull(),
-  /** One of the built-in keys ('work' | 'study' | 'health' | 'life') or a custom #hex. */
+  /** A built-in key ('work' | 'study' | 'health' | 'life'), a custom key ('custom1'..'custom4'), or a #hex. */
   color: text('color').notNull(),
   icon: text('icon').notNull(),
   sortOrder: integer('sort_order').notNull().default(0),
   isDefault: integer('is_default', { mode: 'boolean' }).notNull().default(false),
+  /** Archived domains leave every picker and list; their history stays. They can be restored. */
+  archived: integer('archived', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
 });
 

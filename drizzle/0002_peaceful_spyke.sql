@@ -1,0 +1,1 @@
+ALTER TABLE `domains` ADD `archived` integer DEFAULT false NOT NULL;

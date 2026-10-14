@@ -14,7 +14,7 @@ import { SetRow } from '@/components/set-row';
 import { Text } from '@/components/text';
 import { TextPromptModal } from '@/components/text-prompt-modal';
 import { db } from '@/db/client';
-import { useDomains, useSettings, useWorkoutHistory, useWorkoutSessions, useWorkoutSets } from '@/db/hooks';
+import { useAllDomains, useSettings, useWorkoutHistory, useWorkoutSessions, useWorkoutSets } from '@/db/hooks';
 import {
   addExercise,
   addSet,
@@ -63,7 +63,7 @@ export default function WorkoutSessionScreen() {
   const sets = useWorkoutSets(id);
   const history = useWorkoutHistory();
   const settings = useSettings();
-  const domains = useDomains();
+  const domains = useAllDomains();
   const voice = { language: settings.language, mode: settings.companion };
 
   const { restTimer } = settings;

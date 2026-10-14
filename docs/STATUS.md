@@ -23,6 +23,7 @@ $sdk = "$env:LOCALAPPDATA\Android\Sdk"; $env:ANDROID_HOME = $sdk; $env:PATH = "$
 npx expo start --android                                 # other terminal, project folder
 ```
 
+- **Easier, in Git Bash:** `bash scripts/run-android.sh` starts the emulator if needed, tunnels port 8081 with `adb reverse` and starts Expo. Without the tunnel Expo hands the emulator your Wi-Fi address, which it often can't reach, and the app hangs on a blank screen (see gotcha 20). Dark mode follows Android's setting: `adb shell cmd uimode night yes` (or `no`).
 - Expo Go 57.0.9 is installed on the emulator. If `expo start --android` stalls on "Fetching Expo Go" (it did, from a slow connection), download the APK from `github.com/expo/expo-go-releases` in parallel byte ranges (`curl -r start-end`), join the parts, and `adb install -r` it.
 - There is **no Java** on this PC, so a local native build is not possible yet (see 4.5).
 - Screenshots for checking UI: `adb exec-out screencap -p > shot.png`, then view the file. Taps: `adb shell input tap x y` (the emulator is 1080x2220).
@@ -31,11 +32,11 @@ npx expo start --android                                 # other terminal, proje
 
 ## 2. What is built and working
 
-Everything below was exercised on the emulator unless marked otherwise. **178 tests**, `tsc` and `expo lint` all pass.
+Everything below was exercised on the emulator unless marked otherwise. **219 tests**, `tsc` and `expo lint` all pass.
 
 | Feature | Where | Notes |
 |---|---|---|
-| **Design system + mascot** | `design-system/kala/` (`MASTER.md`, `mockups.html`, `mascot.html`) | Tokens mirrored in `src/theme/tokens.ts`. Light and dark themes switch automatically (dark mode is covered by token tests but not yet looked at on a device). |
+| **Design system + mascot** | `design-system/kala/` (`MASTER.md`, `mockups.html`, `mascot.html`) | Tokens mirrored in `src/theme/tokens.ts`. Light and dark themes switch automatically (dark mode is covered by token tests, and Today, Settings and the Domain editor were looked at in dark mode on the emulator and looked right; the other screens were not). |
 | **Kala the koala** | `src/components/kala/` | One `<Kala pose size domain />` in `react-native-svg`, 9 poses. Props take the domain color. |
 | **Local database** | `src/db/` | expo-sqlite + Drizzle. 11 tables. Migrations run at launch. UUID ids. Default domains seeded once. `settings` is a key/value JSON table. |
 | **Tasks** | `src/features/tasks`, `src/db/repos/tasks.ts`, `app/(tabs)/tasks.tsx`, `app/task/[id].tsx` | Domain, energy, due date (quick chips), time estimate, notes. Soft delete (archive). |
@@ -46,6 +47,7 @@ Everything below was exercised on the emulator unless marked otherwise. **178 te
 | **Focus timer (pomodoro)** | `src/features/focus-timer`, `app/focus/[taskId].tsx`, `src/components/timer-*.tsx` | Timestamp-based, survives backgrounding/restart (state lives in `settings.activeTimer`). Pause, resume, break, rounds, mini pill on every tab, keeps screen awake. |
 | **Fitness** | `src/features/fitness`, `src/db/repos/workouts.ts`, `app/(tabs)/fitness.tsx`, `app/workout/template/[id].tsx`, `app/workout/session/[id].tsx`, `src/components/{set-row,rest-dock,workout-pill,workout-engine}.tsx` | Workout templates (starter push/pull/legs, or your own), start a workout from one, log sets (tap weight/reps to edit with a -/+ 2.5 kg stepper, checkbox completes a set and starts that exercise's **rest timer** with +30s / Skip), add or remove sets and exercises, "Last time: 4 × 8 @ 57.5 kg" under each exercise, and each set starts from what you did last time. Finish shows a summary (duration, volume, sets) and **personal records**. One workout at a time; a floating pill and a resume card bring you back. Weights in kg. Counts toward the activity grid under Health. |
 | **Capture sheet + Inbox** | `src/app/capture.tsx`, `src/app/inbox.tsx`, `src/components/{inbox-button,domain-chips,segmented}.tsx`, `src/db/repos/notes.ts`, `src/features/notes/logic.ts` | The + on **Today, Tasks and Insights** opens a bottom sheet with **Note** (default, keyboard up) · **Task** (title, domain, energy, due, "More options" opens the full editor) · **Log** (today's habits, same controls as the Habits tab). Habits and Fitness keep their own + editors. Cancel, backdrop tap or Android back with a non-empty draft asks "Discard this?". Today's header has an **Inbox** icon with a count badge. The Inbox lists unprocessed notes: **Turn into task** opens the task editor prefilled (first line is the title, the rest goes to notes) and saving creates the task and marks the note processed **in one transaction**; **Archive** marks it processed with no task. |
+| **Settings** | `src/app/settings.tsx`, `src/app/domain/[id].tsx`, `src/db/repos/domains.ts`, `src/features/domains/logic.ts`, `src/components/{swatches,icon-grid,settings-button}.tsx` | A gear in Today's header opens Settings. **Companion:** Chatty / Quiet / Off and Taglish / English with a live preview line. **Life domains:** add, rename, change icon (16) and color (8: the four built-ins plus four custom), move up/down, and **archive**. An archived domain leaves every picker, list and Focus Mode; its open tasks and habits are hidden (the confirm dialog says how many) and come back on **Restore**; its history and activity-grid squares stay. The last active domain can't be archived. The Focus chip on Today shrinks to an icon while Focus Mode is off, to make room in the header. |
 | **Companion copy** | `src/features/companion/copy.ts` | All of Kala's lines, Taglish or English, Chatty/Quiet/Off. Every line has a test. |
 | **Test setup** | `src/test/make-db.ts` | Real in-memory SQLite (better-sqlite3) with the app's migrations, so repos and queries are tested against real SQL. |
 
@@ -59,7 +61,6 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - Swipe-down to close the Capture sheet (today: Cancel, backdrop tap or back). A snackbar or toast after saving, and an Undo for Archive: there is no snackbar component yet.
 - Log segment has no **weight** entry: there is no body-weight table yet (comes with the Fitness follow-ups in 3.2).
 - Notes have no domain and no search. Archived notes are kept in the table but there is no screen to see or restore them.
-- The **Settings gear** in the Today header is not added: it arrives with the Settings screen (3.5).
 
 ### 3.2 Fitness follow-ups (the core is built, see section 2)  [spec section 15]
 - **Rest-over notification.** The rest timer only buzzes in the app. A local notification when it ends (so it works with the screen off) needs a real build, like 3.8. `WorkoutEngine` is where it would go; copy the pattern in `src/features/focus-timer/alerts.ts`.
@@ -77,10 +78,11 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - Packages are installed (`expo-file-system`, `expo-sharing`, `expo-document-picker`). Nothing is written yet.
 - Export every table to `{ schemaVersion, exportedAt, data }` JSON, write to the cache dir, open the share sheet. Import: pick file, validate the version, confirm "replace all data", then wipe and insert **in one transaction**. Skip transient settings such as `activeTimer`. Test the round trip with `make-db.ts` (seed, export, wipe, import, deep-equal).
 
-### 3.5 Settings screen (reachable from the Today header)
-- **Companion:** Chatty / Quiet / Off and Taglish / English. These settings already exist (`companion`, `language`, defaulting to Chatty and Taglish), and every screen reads them, but **there is no UI to change them.**
-- **Domains:** add, rename, recolor, reorder, hide custom domains. The schema supports custom hex colors (`theme.custom` has 4 starter colors) and an icon name, but `DomainIcon` only knows 5 icons and needs a picker.
-- Pomodoro lengths (currently picked on the timer's ready screen), notification status, Backup entry point, About.
+### 3.5 Settings follow-ups (Companion and Domains are built, see section 2)
+- **Pomodoro lengths** (default focus and break): today they are only picked on the timer's ready screen, so a Settings row would be a second place for the same control.
+- **Notifications status** (reminders can't run in Expo Go on Android), **About** (name, version), and a **Backup** row once 3.4 exists.
+- Drag-to-reorder domains (today: up/down buttons). More than four custom colors, or a free color picker.
+- Deleting a domain for good isn't possible by design (archive only).
 
 ### 3.6 Day Ring on Today  [spec section 2 and 7.1]
 - The 24-hour dial (noon at the top) is the design's signature element and **is not built.** Today uses a plain list.
@@ -114,6 +116,7 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 - **Kala:** neutral grey koala; props take the domain color; never blocks anything; Taglish by default, plain English available; Quiet mode drops the jokes; Off hides Kala. Never guilt-trips. The "kala ko tapos na" joke is about the moment, never the person.
 - **Only completed things count as activity:** a count habit needs its goal, a focus session must run to the end, breaks never count.
 - **Streaks count scheduled days only;** rest days never break one; today stays pending until it ends.
+- **Domains are archived, never deleted.** An archived domain is hidden like a Focus Mode domain; its history stays. Custom colors are stored as `custom1` to `custom4` and resolved per theme, so dark mode gets its lighter variant (a raw `#hex` still works but looks the same in both themes).
 - **Delete means archive** (soft delete) so history survives. (Workout templates are the exception: deleting one keeps past sessions, which keep their own copy of the sets.)
 - **Weights are in kilograms.** A workout only saves the sets you checked off; unchecked ones are dropped on finish. A first time doing an exercise sets a baseline, not a record.
 - **The + button is hybrid.** Today, Tasks and Insights open the Capture sheet; Habits and Fitness keep opening their own editors, because a new habit or workout template isn't a quick capture.
@@ -142,6 +145,10 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 17. **The native `formSheet` presentation did not render in Expo Go on Android** (the screen mounted and the keyboard came up, but no sheet was drawn). The Capture sheet is a `transparentModal` route that draws its own backdrop and rounded top, in `src/app/capture.tsx`. Not tested on iOS.
 18. **Call `Keyboard.dismiss()` before closing a screen that has the keyboard up.** Saving the Capture sheet with the keyboard open left the Android window short of its full height (white strip under the tab bar) until the app restarted.
 19. **DB transactions are synchronous.** Drizzle's expo-sqlite driver runs `db.transaction((tx) => { ...; tx.insert(...).run() })` without `await`, and better-sqlite3 does the same, so one function works in the app and in tests. See `convertNoteToTask`. Throwing inside rolls everything back.
+20. **Expo Go on the emulator can hang on a blank screen** when Expo advertises your Wi-Fi address (firewall, VPN). Use `adb reverse tcp:8081 tcp:8081` and open `exp://localhost:8081`; `scripts/run-android.sh` does this by setting `REACT_NATIVE_PACKAGER_HOSTNAME=localhost`. **Don't use `expo start --localhost`**: it binds Metro to localhost only (possibly IPv6), and the tunnel then fails with "unexpected end of stream".
+21. **`useDomains()` returns active (non-archived) domains only.** Use `useAllDomains()` when a row must resolve its domain's name or color even if archived (the workout screen, the focus timer), and `useHiddenDomainIds()` (Focus Mode plus archived) wherever a screen filters by hidden domains. Only `focus-mode.tsx` reads the raw `settings.hiddenDomainIds`, so archived ids never get written into it.
+22. **Workouts count under `settings.workoutDomainId`**, written by `seedIfEmpty` at launch (the Health domain). It is stored by id so renaming, recoloring or archiving Health can't move workouts to another domain. If it is archived, new workouts fall back to the first active domain.
+23. **The emulator keeps Android's dark/light setting between runs**, so a cold boot can come up dark. Android shows a white strip under the tab bar in Expo Go (its navigation bar), in both themes.
 
 ---
 

@@ -12,7 +12,7 @@ import { Segmented } from '@/components/segmented';
 import { Text } from '@/components/text';
 import { TextField } from '@/components/text-field';
 import { db } from '@/db/client';
-import { useDomains, useHabitLogs, useHabits, useSettings } from '@/db/hooks';
+import { useDomains, useHabitLogs, useHabits, useHiddenDomainIds } from '@/db/hooks';
 import { createNote } from '@/db/repos/notes';
 import { createTask } from '@/db/repos/tasks';
 import type { Task } from '@/db/schema';
@@ -44,7 +44,7 @@ export default function CaptureSheet() {
   const domains = useDomains();
   const habits = useHabits();
   const habitLogs = useHabitLogs();
-  const { hiddenDomainIds } = useSettings();
+  const hiddenDomainIds = useHiddenDomainIds();
   const params = useLocalSearchParams<{ dueDate?: string; domainId?: string }>();
 
   const [segment, setSegment] = useState<CaptureSegment>('note');

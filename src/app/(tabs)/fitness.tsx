@@ -13,6 +13,7 @@ import { db } from '@/db/client';
 import { useActiveWorkout, useDomains, useSettings, useTemplates, useWorkoutHistory, useWorkoutSessions } from '@/db/hooks';
 import { addStarterTemplates, startSession } from '@/db/repos/workouts';
 import { fitnessEmpty } from '@/features/companion/copy';
+import { resolveWorkoutDomainId } from '@/features/domains/logic';
 import { type TemplateExercise, formatDuration, formatElapsed, formatVolume } from '@/features/fitness/logic';
 import { daysAgoLabel } from '@/lib/dates';
 import { useNow } from '@/lib/use-now';
@@ -33,8 +34,8 @@ export default function FitnessScreen() {
   const now = useNow(active !== null);
   const voice = { language: settings.language, mode: settings.companion };
 
-  // Workouts count toward Health. Fall back to the first domain if it was renamed away.
-  const healthId = (domains.find((d) => d.color === 'health') ?? domains[0])?.id;
+  // Workouts count toward the remembered domain (Health to begin with), or the first active one if it was archived.
+  const healthId = resolveWorkoutDomainId(domains, settings.workoutDomainId) ?? undefined;
 
   const { finished, lastDone, volumeBySession, thisWeek } = useMemo(() => {
     const done = sessions.filter((s) => s.endedAt !== null);

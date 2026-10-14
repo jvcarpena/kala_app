@@ -29,6 +29,7 @@ const domain = (id: string, color: string, sortOrder: number): Domain => ({
   icon: 'Tag',
   sortOrder,
   isDefault: true,
+  archived: false,
   createdAt: 0,
 });
 

@@ -8,7 +8,7 @@ import { HabitRow } from '@/components/habit-row';
 import { Kala } from '@/components/kala/kala';
 import { Screen } from '@/components/screen';
 import { Text } from '@/components/text';
-import { useDomains, useHabitLogs, useHabits, useSettings } from '@/db/hooks';
+import { useDomains, useHabitLogs, useHabits, useHiddenDomainIds, useSettings } from '@/db/hooks';
 import type { Habit } from '@/db/schema';
 import { habitsLine } from '@/features/companion/copy';
 import { isMet, isScheduled, parseSchedule } from '@/features/habits/logic';
@@ -24,17 +24,18 @@ export default function HabitsScreen() {
   const habits = useHabits();
   const logs = useHabitLogs();
   const settings = useSettings();
+  const hiddenDomainIds = useHiddenDomainIds();
 
   const domainById = useMemo(() => new Map(domains.map((d) => [d.id, d])), [domains]);
   const voice = { language: settings.language, mode: settings.companion };
 
   const { scheduledToday, otherDays } = useMemo(() => {
-    const visible = habits.filter((h) => !settings.hiddenDomainIds.includes(h.domainId));
+    const visible = habits.filter((h) => !hiddenDomainIds.includes(h.domainId));
     return {
       scheduledToday: visible.filter((h) => isScheduled(parseSchedule(h.schedule), today)),
       otherDays: visible.filter((h) => !isScheduled(parseSchedule(h.schedule), today)),
     };
-  }, [habits, settings.hiddenDomainIds, today]);
+  }, [habits, hiddenDomainIds, today]);
 
   const done = scheduledToday.filter((h) => isMet(h, logs.get(h.id)?.get(today))).length;
   const line = habitsLine(voice, done, scheduledToday.length);

@@ -11,7 +11,7 @@ import { Kala } from '@/components/kala/kala';
 import { Screen } from '@/components/screen';
 import { TaskList } from '@/components/task-list';
 import { Text } from '@/components/text';
-import { useDomains, useSettings, useTasks } from '@/db/hooks';
+import { useDomains, useHiddenDomainIds, useSettings, useTasks } from '@/db/hooks';
 import { emptyTasks } from '@/features/companion/copy';
 import { filterTasks, groupOpenByDomain, type EnergyFilter } from '@/features/tasks/logic';
 import { useToday } from '@/lib/use-today';
@@ -28,6 +28,7 @@ export default function TasksScreen() {
   const domains = useDomains();
   const tasks = useTasks();
   const settings = useSettings();
+  const hiddenDomainIds = useHiddenDomainIds();
   const [energy, setEnergy] = useState<EnergyFilter>('any');
   const [domainId, setDomainId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -36,7 +37,7 @@ export default function TasksScreen() {
   const voice = { language: settings.language, mode: settings.companion };
 
   const { groups, recentlyDone } = useMemo(() => {
-    const visible = filterTasks(tasks, { hiddenDomainIds: settings.hiddenDomainIds, domainId });
+    const visible = filterTasks(tasks, { hiddenDomainIds, domainId });
     const open = filterTasks(visible, { energy });
     return {
       groups: groupOpenByDomain(open, domains).filter((g) => g.tasks.length > 0),
@@ -45,7 +46,7 @@ export default function TasksScreen() {
         .sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0))
         .slice(0, RECENTLY_DONE),
     };
-  }, [tasks, domains, settings.hiddenDomainIds, domainId, energy]);
+  }, [tasks, domains, hiddenDomainIds, domainId, energy]);
 
   const toggle = (id: string) =>
     setCollapsed((prev) => {
@@ -54,7 +55,7 @@ export default function TasksScreen() {
       return next;
     });
 
-  const visibleDomains = domains.filter((d) => !settings.hiddenDomainIds.includes(d.id));
+  const visibleDomains = domains.filter((d) => !hiddenDomainIds.includes(d.id));
   const empty = groups.length === 0;
   const emptyCopy = emptyTasks(voice, domainId ? domainById.get(domainId)?.name : undefined);
   const openTotal = groups.reduce((n, g) => n + g.tasks.length, 0);

@@ -13,7 +13,7 @@ import { Kala } from '@/components/kala/kala';
 import type { KalaPose } from '@/components/kala/poses';
 import { Text } from '@/components/text';
 import { db } from '@/db/client';
-import { useDomains, useSettings, useTasks } from '@/db/hooks';
+import { useAllDomains, useDomains, useHiddenDomainIds, useSettings, useTasks } from '@/db/hooks';
 import { setTaskDone } from '@/db/repos/tasks';
 import { setSetting } from '@/db/settings';
 import { timerLine, type TimerLineState } from '@/features/companion/copy';
@@ -45,6 +45,8 @@ export default function FocusScreen() {
   const settings = useSettings();
   const { activeTimer: timer, pomodoro } = settings;
   const domains = useDomains();
+  const allDomains = useAllDomains();
+  const hiddenDomainIds = useHiddenDomainIds();
   const tasks = useTasks();
   const now = useNow(timer?.status === 'running');
   const voice = { language: settings.language, mode: settings.companion };
@@ -53,8 +55,9 @@ export default function FocusScreen() {
   const requested = taskId && taskId !== 'none' && taskId !== 'active' ? taskId : null;
   const task = tasks.find((x) => x.id === (timer ? timer.taskId : requested));
   const domainId =
-    timer?.domainId ?? task?.domainId ?? (domains.find((d) => !settings.hiddenDomainIds.includes(d.id)) ?? domains[0])?.id;
-  const domain = domains.find((d) => d.id === domainId);
+    timer?.domainId ?? task?.domainId ?? (domains.find((d) => !hiddenDomainIds.includes(d.id)) ?? domains[0])?.id;
+  // A running timer or an old task can belong to a domain archived since, so look it up among all of them.
+  const domain = allDomains.find((d) => d.id === domainId);
   const colors = domainColors(t, domain?.color ?? '');
   const otherTaskRunning = !!timer && requested !== null && requested !== timer.taskId;
 

@@ -10,13 +10,20 @@ export function withAlpha(hex: string, alpha: number): string {
 }
 
 const HEX = /^#[0-9a-f]{6}$/i;
+const CUSTOM_KEY = /^custom([1-9])$/;
 
 /**
- * A domain's `color` is either a built-in key ('work', 'study', ...) or a custom #hex.
+ * A domain's `color` is a built-in key ('work', 'study', ...), a custom key ('custom1'..'custom4',
+ * resolved per theme so dark mode gets its lighter variant) or a fixed #hex.
  * Unknown values fall back to a neutral so a bad row can never crash a screen.
  */
 export function domainColors(theme: Theme, color: string): DomainColors {
   if (color in theme.domains) return theme.domains[color as DomainKey];
+  const custom = CUSTOM_KEY.exec(color);
+  if (custom) {
+    const hex = theme.custom[Number(custom[1]) - 1];
+    if (hex) return { main: hex, soft: withAlpha(hex, 0.14) };
+  }
   if (HEX.test(color)) return { main: color, soft: withAlpha(color, 0.14) };
   return { main: theme.colors.inkMuted, soft: theme.colors.surfaceSunk };
 }

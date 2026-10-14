@@ -9,7 +9,7 @@ import { DomainIcon } from '@/components/domain-icon';
 import { Text } from '@/components/text';
 import { TextField } from '@/components/text-field';
 import { db } from '@/db/client';
-import { useDomains, useSettings } from '@/db/hooks';
+import { useDomains, useHiddenDomainIds, useSettings } from '@/db/hooks';
 import { archiveHabit, createHabit, getHabit, updateHabit } from '@/db/repos/habits';
 import type { Habit } from '@/db/schema';
 import {
@@ -34,6 +34,7 @@ export default function HabitEditor() {
   const insets = useSafeAreaInsets();
   const domains = useDomains();
   const settings = useSettings();
+  const hiddenDomainIds = useHiddenDomainIds();
   const params = useLocalSearchParams<{ id: string }>();
   const isNew = params.id === 'new';
 
@@ -68,7 +69,7 @@ export default function HabitEditor() {
     };
   }, [isNew, params.id]);
 
-  const defaultDomainId = (domains.find((d) => !settings.hiddenDomainIds.includes(d.id)) ?? domains[0])?.id ?? null;
+  const defaultDomainId = (domains.find((d) => !hiddenDomainIds.includes(d.id)) ?? domains[0])?.id ?? null;
   const activeDomainId = domainId ?? defaultDomainId;
 
   const targetNumber = Number(target.replace(',', '.'));

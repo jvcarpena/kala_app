@@ -17,6 +17,8 @@ export type Settings = {
   /** Name of the active Focus Mode preset, or null when Focus Mode is off. */
   focusPreset: string | null;
   pomodoro: { focusMin: number; breakMin: number };
+  /** The domain finished workouts count under. Remembered by id so renaming, recoloring or archiving Health can't move it. */
+  workoutDomainId: string | null;
   /** The running, paused or just-finished focus/break phase. Null when no timer is active. */
   activeTimer: ActiveTimer | null;
   /** Rest countdown after a completed set in a workout. Null when not resting. */
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: Settings = {
   hiddenDomainIds: [],
   focusPreset: null,
   pomodoro: { focusMin: 25, breakMin: 5 },
+  workoutDomainId: null,
   activeTimer: null,
   restTimer: null,
 };

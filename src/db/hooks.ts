@@ -1,8 +1,9 @@
-import { and, asc, desc, eq, isNull, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, ne, sql } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useMemo } from 'react';
 
 import type { ActivityEvent } from '@/features/activity/heatmap';
+import { activeDomains, effectiveHiddenIds } from '@/features/domains/logic';
 import type { HistorySet } from '@/features/fitness/logic';
 
 import { db } from './client';
@@ -24,8 +25,25 @@ import { DEFAULT_SETTINGS, type Settings } from './settings';
 
 // Each hook subscribes to SQLite, so screens update the moment data changes.
 
+/** Every domain, archived ones included, in display order. For resolving a row's domain name or color. */
+export function useAllDomains() {
+  return useLiveQuery(db.select().from(domains).orderBy(asc(domains.sortOrder), asc(sql`${domains}.rowid`))).data;
+}
+
+/** Active (not archived) domains in display order. Use this for pickers, filter chips and lists. */
 export function useDomains() {
-  return useLiveQuery(db.select().from(domains).orderBy(asc(domains.sortOrder))).data;
+  const all = useAllDomains();
+  return useMemo(() => activeDomains(all), [all]);
+}
+
+/**
+ * Domain ids to treat as hidden everywhere: Focus Mode's choices plus archived domains. The Focus
+ * Mode screen reads the raw setting instead, so archived ids never get written back into it.
+ */
+export function useHiddenDomainIds(): string[] {
+  const all = useAllDomains();
+  const { hiddenDomainIds } = useSettings();
+  return useMemo(() => effectiveHiddenIds(hiddenDomainIds, all), [hiddenDomainIds, all]);
 }
 
 /** Every task that hasn't been archived. */

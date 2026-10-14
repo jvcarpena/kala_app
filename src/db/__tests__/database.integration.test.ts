@@ -51,7 +51,9 @@ describe('settings', () => {
     await setSetting(db, 'companion', 'quiet');
     await setSetting(db, 'companion', 'off');
     expect(await getSetting(db, 'companion')).toBe('off');
-    expect(await db.select().from(schema.settings)).toHaveLength(1);
+    // Writing the same key twice updates one row rather than adding another.
+    const rows = await db.select().from(schema.settings);
+    expect(rows.filter((r) => r.key === 'companion')).toHaveLength(1);
   });
 
   it('round-trips structured values', async () => {

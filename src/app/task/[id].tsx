@@ -10,7 +10,7 @@ import { EnergySegment } from '@/components/energy';
 import { Text } from '@/components/text';
 import { TextField } from '@/components/text-field';
 import { db } from '@/db/client';
-import { useDomains, useSettings } from '@/db/hooks';
+import { useDomains, useHiddenDomainIds } from '@/db/hooks';
 import { convertNoteToTask } from '@/db/repos/notes';
 import { archiveTask, createTask, getTask, updateTask } from '@/db/repos/tasks';
 import type { Task } from '@/db/schema';
@@ -29,7 +29,7 @@ export default function TaskEditor() {
   const insets = useSafeAreaInsets();
   const today = useToday();
   const domains = useDomains();
-  const { hiddenDomainIds } = useSettings();
+  const hiddenDomainIds = useHiddenDomainIds();
   const params = useLocalSearchParams<{
     id: string;
     dueDate?: string;
