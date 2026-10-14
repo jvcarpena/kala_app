@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kala mascot sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --sunk:#E2E7EC; --ink:#16202B; --muted:#566271; --line:#D3DAE1; --onInk:#FFFFFF;
+  --work:#2F5BD9; --workSoft:#E3EAFC; --study:#7A45CF; --studySoft:#EEE6FA;
+  --health:#0E8A63; --healthSoft:#DDF3EA; --life:#D2512B; --lifeSoft:#FBE6DE; --streak:#B7791F;
+  /* mascot tokens */
+  --fur:#97A3AF; --furShade:#7F8C99; --fluff:#EEF1F4; --nose:#26303B; --blush:#F0A69C; --eye:#1B242E;
+  --shadow:0 8px 24px rgba(22,32,43,.16); --page:#C9D1D9;
+}
+:root[data-theme="dark"]{
+  --bg:#0E141B; --surface:#17202A; --sunk:#0A0F15; --ink:#E7ECF2; --muted:#9AA6B4; --line:#2A3644; --onInk:#0E141B;
+  --work:#7C9BFF; --workSoft:#1C2847; --study:#B793F5; --studySoft:#2A1F42;
+  --health:#43D19E; --healthSoft:#133528; --life:#FF8A63; --lifeSoft:#3A2018; --streak:#F2B84B;
+  --fur:#A3AEBA; --furShade:#8592A0; --fluff:#E4E9EE; --nose:#1A222B; --blush:#E79388; --eye:#121920;
+  --shadow:none; --page:#05080B;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--page);font-family:"Atkinson Hyperlegible Next",system-ui,sans-serif;color:var(--ink);padding:32px 16px 64px}
+.wrap{max-width:1180px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h1{font-family:"Bricolage Grotesque";font-size:34px;font-weight:700}
+h2{font-family:"Bricolage Grotesque";font-size:22px;font-weight:600;margin:40px 0 6px}
+.lede{color:var(--muted);max-width:62ch;margin-top:6px;line-height:1.55}
+.toggle{font:500 14px "Atkinson Hyperlegible Next";background:var(--ink);color:var(--onInk);border:0;border-radius:12px;padding:12px 16px;cursor:pointer}
+.sec-p{color:var(--muted);max-width:66ch;line-height:1.55;margin-bottom:16px}
+
+/* hero */
+.hero{background:var(--surface);border-radius:28px;padding:28px;display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:center}
+.hero h3{font-family:"Bricolage Grotesque";font-size:44px;font-weight:700;line-height:1}
+.hero .tag{font-size:18px;margin:10px 0 14px;color:var(--muted)}
+.hero .tag b{color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fact{background:var(--bg);border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.5}
+.fact b{display:block;font-size:15px;margin-bottom:2px}
+@media (max-width:700px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+
+/* sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.pose{background:var(--surface);border-radius:20px;padding:12px 12px 16px;text-align:center}
+.pose svg{width:100%;max-width:170px;height:auto;display:block;margin:0 auto}
+.pose b{display:block;font-size:15px;margin-top:4px}
+.pose span{display:block;font-size:13px;color:var(--muted);line-height:1.45;margin-top:2px}
+.pose q{display:block;font-size:14px;margin-top:8px;quotes:"\201C" "\201D";font-style:normal;color:var(--ink)}
+
+/* phones */
+.phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px 20px;justify-items:center}
+figure{display:flex;flex-direction:column;align-items:center;gap:10px}
+figcaption{font-size:14px;color:var(--muted);text-align:center;max-width:330px;line-height:1.45}
+figcaption b{color:var(--ink)}
+.phone{width:340px;height:700px;border-radius:38px;background:var(--bg);overflow:hidden;position:relative;border:8px solid #1d2630;display:flex;flex-direction:column}
+.status{height:26px;display:flex;justify-content:space-between;padding:6px 22px 0;font-size:12px;font-weight:700}
+.scroll{flex:1;overflow:hidden;padding:4px 16px 0}
+.tabs{height:66px;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding-top:10px;font-size:11px;color:var(--muted)}
+.tabs span{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tabs i{width:22px;height:22px;border-radius:6px;background:var(--line);display:block}
+.tabs .on{color:var(--ink);font-weight:700}.tabs .on i{background:var(--ink)}
+.greet{display:flex;gap:10px;align-items:flex-end;margin:10px 0 12px}
+.greet svg{width:64px;height:64px;flex:none}
+.bubble{background:var(--surface);border-radius:16px 16px 16px 4px;padding:10px 12px;font-size:15px;line-height:1.4}
+.bubble small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 0}
+.hdr h4{font-family:"Bricolage Grotesque";font-weight:700;font-size:24px}
+.hdr .sub{font-size:13px;color:var(--muted)}
+.card{background:var(--surface);border-radius:16px;padding:14px;margin-bottom:10px}
+.oops{display:flex;gap:12px;align-items:center}
+.oops svg{width:76px;height:76px;flex:none}
+.oops .t{font-family:"Bricolage Grotesque";font-weight:600;font-size:19px}
+.oops .d{font-size:14px;color:var(--muted);margin-top:2px;line-height:1.4}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btn{height:44px;border-radius:12px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:1}
+.btn.p{background:var(--ink);color:var(--onInk)}.btn.s{background:var(--sunk)}
+.li{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.li:last-child{border-bottom:0}
+.chk{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);flex:none}
+.m{font-size:13px;color:var(--muted)}
+.dot{width:12px;height:12px;border-radius:4px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 28px}
+.empty svg{width:190px;height:190px}
+.empty .t{font-family:"Bricolage Grotesque";font-weight:600;font-size:22px;margin-top:8px}
+.empty .d{color:var(--muted);font-size:15px;line-height:1.5;margin:6px 0 18px}
+.toast{position:absolute;left:12px;right:12px;bottom:80px;background:var(--ink);color:var(--onInk);border-radius:18px;padding:10px 14px 10px 8px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+.toast svg{width:52px;height:52px;flex:none}
+.toast b{display:block;font-size:15px}.toast small{font-size:13px;opacity:.8}
+.peek{position:absolute;right:16px;bottom:0;width:124px}
+.clock{font-family:"Bricolage Grotesque";font-weight:600;font-size:60px;font-variant-numeric:tabular-nums}
+
+/* icon + wordmark */
+.brand{display:flex;gap:28px;flex-wrap:wrap;align-items:center;background:var(--surface);border-radius:24px;padding:24px}
+.appicon{width:120px;height:120px;border-radius:28px;background:var(--ink);display:grid;place-items:center;overflow:hidden}
+.appicon.light{background:var(--bg)}
+.word{font-family:"Bricolage Grotesque";font-weight:700;font-size:56px;line-height:1;letter-spacing:-1px}
+.word small{display:block;font-family:"Atkinson Hyperlegible Next";font-weight:500;font-size:16px;letter-spacing:0;color:var(--muted);margin-top:6px}
+
+/* voice table */
+table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:16px;overflow:hidden;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45}
+th{color:var(--muted);font-weight:500;font-size:13px}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.rule{background:var(--surface);border-radius:16px;padding:14px;font-size:14px;line-height:1.5}
+.rule b{display:block;font-size:15px;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Meet Kala, your koala companion</h1>
+      <p class="lede">Drop the "o" from koala and you get Kala. It's the friend who sits next to your to-do list: happy when you finish things, sleepy when you should be, and never judgy when you forget. Kala ko tapos na?</p>
+    </div>
+    <button class="toggle" id="theme">Show dark theme</button>
+  </div>
+
+  <div class="hero">
+    <div data-koala="hello" style="width:240px"></div>
+    <div>
+      <h3>Kala</h3>
+      <p class="tag"><b>Kala: kala ko tapos na</b>, for every time you were sure it was done.</p>
+      <div class="facts">
+        <div class="fact"><b>Personality</b>Chill, warm, a little <i>makakalimutin</i> (forgetful) too. Koalas sleep 20 hours a day, so Kala gets it.</div>
+        <div class="fact"><b>Job</b>Makes the app feel like company. It reacts to what you do, but it never blocks you and never nags.</div>
+        <div class="fact"><b>Look</b>Soft grey fur, the big dark koala nose, and rosy cheeks. Flat shapes with no outlines, to match the app.</div>
+        <div class="fact"><b>Color rule</b>Kala itself is neutral. Props take the color of the domain you're in: a blue headband for Work, a violet book for Study, a green barbell for Health.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Poses</h2>
+  <p class="sec-p">Nine moods, each tied to a moment in the app. They're all built from one SVG rig (same head, body and nose, with swappable eyes, mouth, arms and props), so in React Native each pose is just props on one <code>&lt;Kala /&gt;</code> component.</p>
+  <div class="sheet" id="sheet"></div>
+
+  <h2>In the app</h2>
+  <p class="sec-p">Kala shows up in a few set places, small and out of the way, and only when there's something to react to.</p>
+  <div class="phones">
+
+    <figure>
+      <div class="phone">
+        <div class="status"><span>7:42</span><span>●●● 96%</span></div>
+        <div class="scroll">
+          <div class="hdr"><div><h4>Tuesday</h4><div class="sub">14 October</div></div></div>
+          <div class="greet"><div data-koala="hello" data-mini></div><div class="bubble">Magandang umaga! 3 things before lunch.<small>Deep work starts 9:30.</small></div></div>
+          <div class="card">
+            <div class="oops"><div data-koala="oops"></div><div><div class="t">Kala ko tapos na?</div><div class="d">"Submit lab report" was due yesterday and isn't checked off.</div></div></div>
+            <div class="btns"><span class="btn p">Move to today</span><span class="btn s">Mark done</span></div>
+          </div>
+          <div class="card">
+            <div class="li"><span class="chk"></span><div><div>Finish API spec</div><div class="m"><span class="dot" style="background:var(--work)"></span>Work · High · 50 min</div></div></div>
+            <div class="li"><span class="chk"></span><div><div>Read chapter 3</div><div class="m"><span class="dot" style="background:var(--study)"></span>Study · Med · 30 min</div></div></div>
+          </div>
+        </div>
+        <nav class="tabs"><span class="on"><i></i>Today</span><span><i></i>Tasks</span><span><i></i>Habits</span><span><i></i>Fitness</span><span><i></i>Insights</span></nav>
+      </div>
+      <figcaption><b>Morning, plus the "kala ko" card.</b> A small greeting sits under the date. Overdue tasks from yesterday get one gentle card with two clear fixes and no guilt trip.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone" style="background:var(--workSoft)">
+        <div class="status"><span>10:31</span><span>●●● 79%</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding-top:110px;position:relative">
+          <div class="clock">18:42</div>
+          <div class="m" style="font-size:14px">of 25 min · Finish API spec</div>
+          <div class="peek" data-koala="focus" data-peek></div>
+        </div>
+      </div>
+      <figcaption><b>Focus timer.</b> Kala peeks in from the bottom corner wearing a headband in the Work color and stays quiet. The ring from the main mockups (left out here) stays the hero, and Kala just keeps you company.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone">
+        <div class="status"><span>16:05</span><span>●●● 58%</span></div>
+        <div class="scroll" style="display:flex;flex-direction:column">
+          <div class="hdr"><div><h4>Tasks</h4><div class="sub">Study</div></div></div>
+          <div class="empty">
+            <div data-koala="chill"></div>
+            <div class="t">Wala nang Study tasks</div>
+            <div class="d">Nothing left in Study. Add one with the + button, or enjoy the break like Kala.</div>
+            <span class="btn s" style="flex:none;padding:0 18px">Add a Study task</span>
+          </div>
+        </div>
+        <nav class="tabs"><span><i></i>Today</span><span class="on"><i></i>Tasks</span><span><i></i>Habits</span><span><i></i>Fitness</span><span><i></i>Insights</span></nav>
+      </div>
+      <figcaption><b>Empty states.</b> Kala lounging with a eucalyptus sprig makes an empty list feel like a reward, while the button still points to the next step.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone">
+        <div class="status"><span>21:12</span><span>●●● 33%</span></div>
+        <div class="scroll">
+          <div class="hdr"><div><h4>Tuesday</h4><div class="sub">14 October · 9 of 9 done</div></div></div>
+          <div class="card">
+            <div class="li"><span class="chk" style="background:var(--life);border:0"></span><div><div style="text-decoration:line-through;color:var(--muted)">Buy groceries</div></div></div>
+            <div class="li"><span class="chk" style="background:var(--study);border:0"></span><div><div style="text-decoration:line-through;color:var(--muted)">Review flashcards</div></div></div>
+          </div>
+        </div>
+        <div class="toast"><div data-koala="yay" data-mini></div><div><b>Tapos na talaga!</b><small>Done for real. Everything's checked off today.</small></div></div>
+        <nav class="tabs"><span class="on"><i></i>Today</span><span><i></i>Tasks</span><span><i></i>Habits</span><span><i></i>Fitness</span><span><i></i>Insights</span></nav>
+      </div>
+      <figcaption><b>All done.</b> Clearing the whole day gets a short toast from a cheering Kala. Single task completions stay a haptic tick, so the celebration stays special.</figcaption>
+    </figure>
+  </div>
+
+  <h2>App icon and wordmark</h2>
+  <div class="brand">
+    <div class="appicon"><svg viewBox="0 0 120 120" width="120" height="120" id="icon1"></svg></div>
+    <div class="appicon light"><svg viewBox="0 0 120 120" width="120" height="120" id="icon2"></svg></div>
+    <div class="word">kala<small>kala ko tapos na</small></div>
+  </div>
+  <p class="sec-p" style="margin-top:10px">Kala's face sits inside the Day Ring, so the icon ties the mascot to the main idea of the app. The ring arcs use the four domain colors.</p>
+
+  <h2>Kala's voice</h2>
+  <p class="sec-p">Light Taglish by default, switchable to English in Settings. Short and kind, with one line at a time. Kala jokes about forgetting but never about the user's effort.</p>
+  <table>
+    <tr><th>Moment</th><th>Taglish (default)</th><th>English</th></tr>
+    <tr><td>Morning greeting</td><td>Magandang umaga! 3 things before lunch.</td><td>Good morning! 3 things before lunch.</td></tr>
+    <tr><td>Overdue task</td><td>Kala ko tapos na? "Submit lab report" is still open.</td><td>Thought this was done? "Submit lab report" is still open.</td></tr>
+    <tr><td>All tasks done</td><td>Tapos na talaga! Pahinga ka na.</td><td>Done for real! Time to rest.</td></tr>
+    <tr><td>Streak milestone</td><td>7 days straight! Lodi.</td><td>7 days straight! Nice.</td></tr>
+    <tr><td>Streak broken</td><td>Okay lang, simula ulit tayo bukas.</td><td>That's okay, we start again tomorrow.</td></tr>
+    <tr><td>Late night</td><td>Tulog na tayo? Kahit koala nagpapahinga.</td><td>Bedtime? Even koalas rest.</td></tr>
+    <tr><td>Workout done</td><td>Lakas! 42 min, 6 exercises.</td><td>Strong! 42 min, 6 exercises.</td></tr>
+    <tr><td>Empty list</td><td>Wala nang tasks dito. Chill muna.</td><td>Nothing here. Take it easy.</td></tr>
+  </table>
+
+  <h2>Rules for Kala</h2>
+  <div class="rules">
+    <div class="rule"><b>Never in the way</b>Kala never covers a control, never needs a tap to dismiss, and never shows up more than once per screen.</div>
+    <div class="rule"><b>Kind about forgetting</b>The "kala ko" joke is about the moment, not the person. Every oops line comes with a fix (Move, Mark done).</div>
+    <div class="rule"><b>You can turn it down</b>Settings → Companion: <i>Chatty</i>, <i>Quiet</i> (poses only, no lines) or <i>Off</i>. Language: Taglish or English.</div>
+    <div class="rule"><b>Calm motion</b>One small bounce when Kala appears, with nothing looping. Reduced motion shows Kala without the bounce.</div>
+    <div class="rule"><b>Accessible</b>Kala is decorative (hidden from screen readers), and anything Kala says is real text in the bubble, which screen readers do read.</div>
+    <div class="rule"><b>Works offline</b>Kala is drawn with code (react-native-svg), not image files, so it's tiny, sharp at any size, and themes with dark mode.</div>
+  </div>
+</div>
+
+<script>
+const v = n => `var(--${n})`;
+/* One rig, many poses. viewBox 0 0 200 210. */
+function koala(o = {}) {
+  const { eyes = "dot", mouth = "smile", arms = "rest", prop = null, extra = [] } = o;
+  const P = [];
+  const E = (s) => P.push(s);
+  // shadow
+  E(`<ellipse cx="100" cy="203" rx="52" ry="5" fill="${v("ink")}" opacity=".08"/>`);
+  // back arms (rest)
+  if (arms === "rest") {
+    E(`<ellipse cx="60" cy="150" rx="13" ry="22" transform="rotate(18 60 150)" fill="${v("furShade")}"/>`);
+    E(`<ellipse cx="140" cy="150" rx="13" ry="22" transform="rotate(-18 140 150)" fill="${v("furShade")}"/>`);
+  }
+  if (arms === "wave") {
+    E(`<ellipse cx="60" cy="150" rx="13" ry="22" transform="rotate(18 60 150)" fill="${v("furShade")}"/>`);
+    E(`<ellipse cx="156" cy="112" rx="12" ry="22" transform="rotate(35 156 112)" fill="${v("furShade")}"/>`);
+  }
+  if (arms === "up") {
+    E(`<ellipse cx="44" cy="112" rx="12" ry="22" transform="rotate(-35 44 112)" fill="${v("furShade")}"/>`);
+    E(`<ellipse cx="156" cy="112" rx="12" ry="22" transform="rotate(35 156 112)" fill="${v("furShade")}"/>`);
+  }
+  if (arms === "head") {
+    E(`<ellipse cx="60" cy="150" rx="13" ry="22" transform="rotate(18 60 150)" fill="${v("furShade")}"/>`);
+    E(`<ellipse cx="150" cy="134" rx="12" ry="24" transform="rotate(-12 150 134)" fill="${v("furShade")}"/>`);
+  }
+  // body + feet
+  E(`<ellipse cx="78" cy="194" rx="16" ry="9" fill="${v("furShade")}"/>`);
+  E(`<ellipse cx="122" cy="194" rx="16" ry="9" fill="${v("furShade")}"/>`);
+  E(`<ellipse cx="100" cy="156" rx="48" ry="42" fill="${v("fur")}"/>`);
+  E(`<ellipse cx="100" cy="164" rx="30" ry="28" fill="${v("fluff")}"/>`);
+  // ears
+  [[46, 54], [154, 54]].forEach(([x, y]) => {
+    E(`<circle cx="${x}" cy="${y}" r="30" fill="${v("fur")}"/>`);
+    E(`<circle cx="${x + (x < 100 ? 2 : -2)}" cy="${y + 2}" r="19" fill="${v("fluff")}"/>`);
+  });
+  // head
+  E(`<ellipse cx="100" cy="88" rx="58" ry="50" fill="${v("fur")}"/>`);
+  // headband (behind face features)
+  if (extra.includes("headband")) {
+    E(`<path d="M44 74 Q100 54 156 74 L156 86 Q100 66 44 86 Z" fill="${v("work")}"/>`);
+    E(`<path d="M154 78 l18 -8 l-4 12 z M154 82 l16 8 l-12 4 z" fill="${v("work")}"/>`);
+  }
+  // cheeks
+  E(`<ellipse cx="64" cy="106" rx="10" ry="6" fill="${v("blush")}" opacity=".7"/>`);
+  E(`<ellipse cx="136" cy="106" rx="10" ry="6" fill="${v("blush")}" opacity=".7"/>`);
+  // eyes
+  const eye = {
+    dot: x => `<circle cx="${x}" cy="88" r="5.5" fill="${v("eye")}"/><circle cx="${x + 1.8}" cy="86" r="1.7" fill="#fff"/>`,
+    happy: x => `<path d="M${x - 7} 91 Q${x} 81 ${x + 7} 91" fill="none" stroke="${v("eye")}" stroke-width="3.6" stroke-linecap="round"/>`,
+    closed: x => `<path d="M${x - 7} 87 Q${x} 94 ${x + 7} 87" fill="none" stroke="${v("eye")}" stroke-width="3.4" stroke-linecap="round"/>`,
+    wide: x => `<circle cx="${x}" cy="87" r="8.5" fill="#fff"/><circle cx="${x}" cy="88" r="4.6" fill="${v("eye")}"/>`,
+    focus: x => `<circle cx="${x}" cy="90" r="5" fill="${v("eye")}"/><path d="M${x - 8} ${x < 100 ? 80 : 83} L${x + 8} ${x < 100 ? 83 : 80}" stroke="${v("eye")}" stroke-width="3" stroke-linecap="round"/>`,
+    proud: x => `<path d="M${x - 7} 89 Q${x} 83 ${x + 7} 89" fill="none" stroke="${v("eye")}" stroke-width="3.4" stroke-linecap="round"/>`,
+  }[eyes];
+  E(eye(76) + eye(124));
+  if (extra.includes("glasses")) {
+    E(`<g fill="none" stroke="${v("ink")}" stroke-width="2.6"><circle cx="76" cy="88" r="13"/><circle cx="124" cy="88" r="13"/><path d="M89 86 Q100 81 111 86"/></g>`);
+  }
+  // nose (the koala signature)
+  E(`<path d="M100 82 C114 82 117 92 116 104 C115 116 108 121 100 121 C92 121 85 116 84 104 C83 92 86 82 100 82 Z" fill="${v("nose")}"/>`);
+  E(`<ellipse cx="94" cy="92" rx="4" ry="6" fill="#fff" opacity=".22"/>`);
+  // mouth
+  const m = {
+    smile: `<path d="M92 128 Q100 134 108 128" fill="none" stroke="${v("eye")}" stroke-width="3" stroke-linecap="round"/>`,
+    open: `<path d="M90 126 Q100 142 110 126 Z" fill="${v("eye")}"/><path d="M95 132 Q100 137 105 132" fill="${v("blush")}"/>`,
+    o: `<ellipse cx="100" cy="131" rx="5" ry="6" fill="${v("eye")}"/>`,
+    flat: `<path d="M94 129 L106 129" stroke="${v("eye")}" stroke-width="3" stroke-linecap="round"/>`,
+    sleepy: `<ellipse cx="100" cy="130" rx="3.5" ry="3" fill="${v("eye")}"/>`,
+  }[mouth];
+  E(m);
+  // props held in front of belly
+  if (prop === "book") {
+    E(`<g transform="rotate(-6 100 162)"><rect x="70" y="140" width="60" height="42" rx="4" fill="${v("study")}"/><rect x="74" y="143" width="25" height="35" rx="2" fill="#fff" opacity=".92"/><rect x="101" y="143" width="25" height="35" rx="2" fill="#fff" opacity=".92"/>
+      <path d="M78 151h17M78 157h17M78 163h12M105 151h17M105 157h17M105 163h12" stroke="${v("study")}" stroke-width="2" opacity=".5"/></g>`);
+  }
+  if (prop === "barbell") {
+    E(`<rect x="34" y="148" width="132" height="6" rx="3" fill="${v("ink")}" opacity=".75"/>`);
+    E(`<rect x="38" y="134" width="12" height="34" rx="4" fill="${v("health")}"/><rect x="150" y="134" width="12" height="34" rx="4" fill="${v("health")}"/>`);
+    E(`<rect x="28" y="140" width="9" height="22" rx="3" fill="${v("health")}"/><rect x="163" y="140" width="9" height="22" rx="3" fill="${v("health")}"/>`);
+  }
+  if (prop === "note") {
+    E(`<g transform="rotate(8 112 160)"><rect x="94" y="138" width="44" height="44" rx="5" fill="${v("surface")}" stroke="${v("line")}" stroke-width="2"/><path d="M101 150h30M101 158h30M101 166h18" stroke="${v("muted")}" stroke-width="2.4" stroke-linecap="round"/><path d="M101 150h30" stroke="${v("life")}" stroke-width="2.4"/></g>`);
+  }
+  if (prop === "flame") {
+    E(`<path d="M100 186c-14 0-24-9-24-21 0-13 11-20 14-34 8 5 11 12 12 20 3-2 6-6 7-10 8 7 15 15 15 25 0 12-10 20-24 20z" fill="${v("streak")}"/><path d="M100 182c-6 0-10-4-10-9 0-6 5-9 7-15 4 3 6 7 6 11 2-1 3-3 4-5 3 3 4 6 4 9 0 5-5 9-11 9z" fill="#fff" opacity=".45"/>`);
+  }
+  if (prop === "leaf") {
+    E(`<path d="M66 190 Q96 160 140 132" fill="none" stroke="#6E8F7F" stroke-width="3.5" stroke-linecap="round"/>`);
+    [[80, 174, -30], [96, 160, -40], [112, 148, -35], [128, 138, -45], [88, 176, 40], [106, 162, 35], [122, 150, 40]].forEach(([x, y, r]) =>
+      E(`<ellipse cx="${x}" cy="${y}" rx="11" ry="5.5" transform="rotate(${r} ${x} ${y})" fill="#8FB3A2"/>`));
+  }
+  if (prop === "cup") {
+    E(`<rect x="84" y="146" width="32" height="34" rx="7" fill="${v("life")}"/><path d="M116 154 q12 0 12 9 q0 9 -12 9" fill="none" stroke="${v("life")}" stroke-width="4"/><path d="M92 138 q4 -6 0 -12 M102 138 q4 -6 0 -12" stroke="${v("muted")}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".6"/>`);
+  }
+  // front paws
+  if (arms === "rest" || arms === "wave") {
+    if (prop) { E(`<ellipse cx="74" cy="158" rx="11" ry="9" fill="${v("furShade")}"/>`); if (arms === "rest") E(`<ellipse cx="126" cy="158" rx="11" ry="9" fill="${v("furShade")}"/>`); }
+  }
+  if (arms === "rest" && prop === "barbell") { /* paws on the bar */ }
+  if (arms === "head") {
+    E(`<circle cx="148" cy="112" r="12" fill="${v("furShade")}"/>`); // paw on cheek
+  }
+  // effects
+  if (extra.includes("sweat")) E(`<path d="M166 72 q7 10 0 15 q-7 -5 0 -15z" fill="#8EC5E8"/>`);
+  if (extra.includes("sparkle")) {
+    const st = (x, y, s) => `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s}Z" fill="${v("streak")}"/>`;
+    E(st(22, 70, 9) + st(180, 60, 7) + st(176, 150, 6));
+  }
+  if (extra.includes("zzz")) E(`<g fill="${v("muted")}" font-family="Bricolage Grotesque" font-weight="700"><text x="150" y="34" font-size="18">z</text><text x="164" y="20" font-size="24">z</text><text x="182" y="8" font-size="14">z</text></g>`);
+  if (extra.includes("q")) E(`<text x="164" y="44" font-family="Bricolage Grotesque" font-weight="700" font-size="30" fill="${v("life")}">?</text>`);
+  return `<svg viewBox="-6 -6 212 216" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${P.join("")}</svg>`;
+}
+
+const POSES = {
+  hello:  { eyes: "dot", mouth: "smile", arms: "wave" },
+  yay:    { eyes: "happy", mouth: "open", arms: "up", extra: ["sparkle"] },
+  oops:   { eyes: "wide", mouth: "o", arms: "head", prop: "note", extra: ["sweat", "q"] },
+  focus:  { eyes: "focus", mouth: "flat", arms: "rest", extra: ["headband"] },
+  study:  { eyes: "dot", mouth: "smile", arms: "rest", prop: "book", extra: ["glasses"] },
+  gym:    { eyes: "focus", mouth: "open", arms: "rest", prop: "barbell", extra: ["sweat"] },
+  streak: { eyes: "proud", mouth: "smile", arms: "rest", prop: "flame" },
+  sleepy: { eyes: "closed", mouth: "sleepy", arms: "rest", prop: "cup", extra: ["zzz"] },
+  chill:  { eyes: "closed", mouth: "smile", arms: "rest", prop: "leaf" },
+};
+const SHEET = [
+  ["hello", "Hello", "Morning greeting, first launch, onboarding.", "Magandang umaga!"],
+  ["yay", "Yay", "Whole day cleared, workout finished, backup saved.", "Tapos na talaga!"],
+  ["oops", "Kala ko tapos na", "Overdue or missed task from a previous day.", "Kala ko tapos na?"],
+  ["focus", "Focus", "Peeks in during a pomodoro. The headband takes the task's domain color.", "Tara, focus."],
+  ["study", "Study", "Study empty states, spaced-review prompts (later phase).", "Isang chapter lang."],
+  ["gym", "Gym", "Workout tab and session summary.", "Lakas!"],
+  ["streak", "Streak", "Habit streak milestones: 7, 30, 100 days.", "7 days straight! Lodi."],
+  ["sleepy", "Sleepy", "Late-night opens, low-energy filter, Focus Mode “Rest”.", "Tulog na tayo?"],
+  ["chill", "Chill", "Empty lists and nothing scheduled.", "Chill muna."],
+];
+
+function iconSvg(id, dark) {
+  const s = document.getElementById(id);
+  const c = 60, r = 46, w = 7;
+  const seg = (a0, a1, col) => {
+    const p = (a) => [c + r * Math.cos(a - Math.PI / 2), c + r * Math.sin(a - Math.PI / 2)];
+    const [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `<path d="M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+  };
+  const T = Math.PI * 2, g = 0.18;
+  const ring = seg(0 + g, T / 4 - g, v("work")) + seg(T / 4 + g, T / 2 - g, v("study")) + seg(T / 2 + g, 3 * T / 4 - g, v("health")) + seg(3 * T / 4 + g, T - g, v("life"));
+  const face = koala({ eyes: "dot", mouth: "smile" }).replace('<svg viewBox="-6 -6 212 216"', '<svg x="27" y="22" width="66" height="72" viewBox="0 0 200 150"');
+  s.innerHTML = ring + face;
+}
+
+function render() {
+  document.getElementById("sheet").innerHTML = SHEET.map(([k, t, d, q]) =>
+    `<div class="pose">${koala(POSES[k])}<b>${t}</b><span>${d}</span><q>${q}</q></div>`).join("");
+  document.querySelectorAll("[data-koala]").forEach(el => {
+    let svg = koala(POSES[el.dataset.koala]);
+    if (el.hasAttribute("data-peek")) svg = svg.replace('viewBox="-6 -6 212 216"', 'viewBox="-6 -6 212 140"');
+    el.innerHTML = svg;
+  });
+  iconSvg("icon1"); iconSvg("icon2");
+}
+document.getElementById("theme").addEventListener("click", e => {
+  const d = document.documentElement, dark = d.dataset.theme !== "dark";
+  d.dataset.theme = dark ? "dark" : "light"; e.target.textContent = dark ? "Show light theme" : "Show dark theme";
+});
+render();
+</script>
+</body>
+</html>
