@@ -3,12 +3,14 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useSettings } from '@/db/hooks';
+import { useActiveWorkout, useSettings } from '@/db/hooks';
 import { spacing } from '@/theme/tokens';
 import { useTheme } from '@/theme/use-theme';
 
+import { PILL_SLOT } from './floating-pill';
 import { Text } from './text';
 import { TimerPill } from './timer-pill';
+import { WorkoutPill } from './workout-pill';
 
 type Props = {
   title: string;
@@ -26,14 +28,18 @@ export function Screen({ title, subtitle, headerRight, onAdd, addLabel = 'Add', 
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const hasTimer = useSettings().activeTimer !== null;
+  const hasWorkout = useActiveWorkout() !== null;
+  // Pills stack upwards: the focus timer first, the workout above it.
+  const pillCount = (hasTimer ? 1 : 0) + (hasWorkout ? 1 : 0);
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <ScrollView
         contentContainerStyle={{
           paddingTop: insets.top + spacing.sm,
           paddingHorizontal: spacing.lg,
-          // Room so the last row is never hidden behind the + button or the timer pill.
-          paddingBottom: onAdd || hasTimer ? 104 : spacing.huge,
+          // Room so the last row is never hidden behind the + button or the pills.
+          paddingBottom:
+            pillCount > 0 ? 48 + pillCount * PILL_SLOT + spacing.lg : onAdd ? 104 : spacing.huge,
           gap: spacing.lg,
         }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.md }}>
@@ -51,7 +57,8 @@ export function Screen({ title, subtitle, headerRight, onAdd, addLabel = 'Add', 
         </View>
         {children}
       </ScrollView>
-      <TimerPill clearOfAddButton={!!onAdd} />
+      <TimerPill slot={0} clearOfAddButton={!!onAdd} />
+      <WorkoutPill slot={hasTimer ? 1 : 0} clearOfAddButton={!!onAdd} />
       {onAdd ? (
         <Pressable
           accessibilityRole="button"

@@ -138,6 +138,10 @@ export const workoutSets = sqliteTable('workout_sets', {
     .notNull()
     .references(() => workoutSessions.id, { onDelete: 'cascade' }),
   exerciseName: text('exercise_name').notNull(),
+  /** Position of this exercise in the workout (0 first). Sets of one exercise share it. */
+  exerciseOrder: integer('exercise_order').notNull().default(0),
+  /** Rest after each set of this exercise, in seconds. */
+  restSec: integer('rest_sec').notNull().default(90),
   setIndex: integer('set_index').notNull(),
   reps: integer('reps').notNull(),
   weight: real('weight'),

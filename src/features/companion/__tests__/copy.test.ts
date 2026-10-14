@@ -1,14 +1,17 @@
 import {
   emptyTasks,
+  fitnessEmpty,
   greeting,
   habitReminderBody,
   habitsLine,
   overdueBody,
   overdueHeading,
+  recordLine,
   streakLine,
   timerAlert,
   timerLine,
   todayLine,
+  workoutDoneLine,
 } from '../copy';
 
 const taglish = { language: 'taglish', mode: 'chatty' } as const;
@@ -99,5 +102,25 @@ describe('timer copy', () => {
     expect(timerAlert(taglish, 'focus')).toEqual({ title: 'Focus complete', body: 'Tapos na! Pahinga muna.' });
     expect(timerAlert(english, 'break').body).toBe('Ready for another round?');
     expect(timerAlert(quiet, 'focus').body).toBe('Nice work. Time for a break.');
+  });
+});
+
+describe('fitness copy', () => {
+  it('cheers a finished workout in chatty mode and states the facts plainly in quiet mode', () => {
+    expect(workoutDoneLine(taglish, 42, 12)).toBe('Lakas! 42 min, 12 sets.');
+    expect(workoutDoneLine(english, 42, 1)).toBe('Strong! 42 min, 1 set.');
+    expect(workoutDoneLine(quiet, 42, 12)).toBe('42 min, 12 sets.');
+  });
+
+  it('counts records with the right plural', () => {
+    expect(recordLine(english, 1)).toBe('1 new personal record!');
+    expect(recordLine(english, 3)).toBe('3 new personal records!');
+    expect(recordLine(quiet, 2)).toBe('2 new personal records');
+  });
+
+  it('has an empty state that points at the next step', () => {
+    expect(fitnessEmpty(taglish).title).toBe('Wala pang workout');
+    expect(fitnessEmpty(english).title).toBe('No workouts yet');
+    expect(fitnessEmpty(quiet).body).toContain('template');
   });
 });

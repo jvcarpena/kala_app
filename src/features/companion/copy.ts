@@ -94,3 +94,24 @@ export function timerAlert(v: Voice, phase: 'focus' | 'break'): { title: string;
   }
   return { title: 'Break is over', body: taglish ? 'Balik tayo? Isa pang round.' : 'Ready for another round?' };
 }
+
+export function fitnessEmpty(v: Voice): { title: string; body: string } {
+  const taglish = v.language === 'taglish' && chatty(v);
+  return {
+    title: taglish ? 'Wala pang workout' : 'No workouts yet',
+    body: 'Create a template, or start with a push, pull and legs split.',
+  };
+}
+
+/** Kala's line when a workout is finished. Plain numbers in quiet mode. */
+export function workoutDoneLine(v: Voice, minutes: number, sets: number): string {
+  const facts = `${minutes} min, ${sets} ${sets === 1 ? 'set' : 'sets'}.`;
+  if (!chatty(v)) return facts;
+  return `${v.language === 'taglish' ? 'Lakas!' : 'Strong!'} ${facts}`;
+}
+
+export function recordLine(v: Voice, count: number): string {
+  const plural = count === 1 ? 'record' : 'records';
+  if (!chatty(v)) return `${count} new personal ${plural}`;
+  return v.language === 'taglish' ? `${count} bagong ${plural}!` : `${count} new personal ${plural}!`;
+}

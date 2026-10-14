@@ -8,6 +8,13 @@
       "when": 1791957783054,
       "tag": "0000_open_carmella_unuscione",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791964261918,
+      "tag": "0001_dapper_squadron_sinister",
+      "breakpoints": true
     }
   ]
 }

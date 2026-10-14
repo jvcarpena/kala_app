@@ -1,4 +1,4 @@
-import { addDays, format, parseISO } from 'date-fns';
+import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
 
 // Calendar dates are 'YYYY-MM-DD' strings in the user's local time zone.
 
@@ -21,4 +21,12 @@ export function dueLabel(key: DateKey, today: DateKey = todayKey()): string {
   if (key === addDaysToKey(today, 1)) return 'Tomorrow';
   if (key === addDaysToKey(today, -1)) return 'Yesterday';
   return shortLabel(key);
+}
+
+/** 'today', 'yesterday', '9 days ago'. */
+export function daysAgoLabel(ts: number, now: number = Date.now()): string {
+  const n = differenceInCalendarDays(now, ts);
+  if (n <= 0) return 'today';
+  if (n === 1) return 'yesterday';
+  return `${n} days ago`;
 }

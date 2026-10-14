@@ -31,7 +31,7 @@ npx expo start --android                                 # other terminal, proje
 
 ## 2. What is built and working
 
-Everything below was exercised on the emulator unless marked otherwise. **111 tests**, `tsc` and `expo lint` all pass.
+Everything below was exercised on the emulator unless marked otherwise. **153 tests**, `tsc` and `expo lint` all pass.
 
 | Feature | Where | Notes |
 |---|---|---|
@@ -42,8 +42,9 @@ Everything below was exercised on the emulator unless marked otherwise. **111 te
 | **Today screen** | `app/(tabs)/today.tsx` | Kala greeting, "Kala ko tapos na?" overdue card (one task at a time), energy filter, to-do, done today, habit strip. |
 | **Focus Mode (hide domains)** | `src/features/focus/`, `app/focus-mode.tsx` | Presets (Gym time, Study block, Weekend) or hide domains individually. Applies to tasks and habits. |
 | **Habits** | `src/features/habits`, `app/(tabs)/habits.tsx`, `app/habit/[id].tsx` | Yes/no and count habits, week dots, streaks that respect rest days, reminders. |
-| **Activity grid** | `src/features/activity`, `src/components/activity-heatmap.tsx`, `app/(tabs)/insights.tsx` | GitHub-style grid on Insights, per-domain filter, streaks. Counts finished tasks, habits that reached their goal, **completed** focus sessions and finished workouts (the workout query exists; there is no workout UI yet). |
+| **Activity grid** | `src/features/activity`, `src/components/activity-heatmap.tsx`, `app/(tabs)/insights.tsx` | GitHub-style grid on Insights, per-domain filter, streaks. Counts finished tasks, habits that reached their goal, **completed** focus sessions and finished workouts. |
 | **Focus timer (pomodoro)** | `src/features/focus-timer`, `app/focus/[taskId].tsx`, `src/components/timer-*.tsx` | Timestamp-based, survives backgrounding/restart (state lives in `settings.activeTimer`). Pause, resume, break, rounds, mini pill on every tab, keeps screen awake. |
+| **Fitness** | `src/features/fitness`, `src/db/repos/workouts.ts`, `app/(tabs)/fitness.tsx`, `app/workout/template/[id].tsx`, `app/workout/session/[id].tsx`, `src/components/{set-row,rest-dock,workout-pill,workout-engine}.tsx` | Workout templates (starter push/pull/legs, or your own), start a workout from one, log sets (tap weight/reps to edit with a -/+ 2.5 kg stepper, checkbox completes a set and starts that exercise's **rest timer** with +30s / Skip), add or remove sets and exercises, "Last time: 4 × 8 @ 57.5 kg" under each exercise, and each set starts from what you did last time. Finish shows a summary (duration, volume, sets) and **personal records**. One workout at a time; a floating pill and a resume card bring you back. Weights in kg. Counts toward the activity grid under Health. |
 | **Companion copy** | `src/features/companion/copy.ts` | All of Kala's lines, Taglish or English, Chatty/Quiet/Off. Every line has a test. |
 | **Test setup** | `src/test/make-db.ts` | Real in-memory SQLite (better-sqlite3) with the app's migrations, so repos and queries are tested against real SQL. |
 
@@ -51,7 +52,7 @@ Everything below was exercised on the emulator unless marked otherwise. **111 te
 
 ## 3. What is left, in suggested order
 
-Specs for most of these already exist in `MASTER.md` (section numbers in brackets). The tables that 3.1 and 3.2 need already exist in the schema.
+Specs for most of these already exist in `MASTER.md` (section numbers in brackets). The `notes` table that 3.1 needs already exists in the schema. (Item 3.2, Fitness, is done: see section 2.)
 
 ### 3.1 Quick-note inbox + capture sheet  [spec 7.7]
 - `notes` table exists (`body`, `domainId`, `processed`, `convertedTaskId`). No UI.
@@ -59,11 +60,13 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - Design: the + button on every tab opens one **Capture sheet** with Note / Task / Log segments (Note first, keyboard up). Today each tab's + button opens the task or habit editor directly. Decide whether to switch to the sheet everywhere.
 - Inbox screen: list unprocessed notes, "Turn into task" (prefilled editor) or "Archive".
 
-### 3.2 Fitness: workout templates, sessions, rest timer  [spec 7.5]
-- The **Fitness tab is a "Coming soon" placeholder.** Tables exist: `workout_templates`, `template_exercises`, `workout_sessions`, `workout_sets`.
-- Build templates (exercise, sets, reps, weight, rest seconds). Starting a session copies the template into `workout_sets`. Checking a set starts a **rest timer** (reuse the pure functions in `src/features/focus-timer/timer.ts`; consider generalising the active-timer setting). Show last session's numbers beside each exercise. Finish gives a summary (duration, volume, PRs) and records to the Health domain.
-- `workoutsQuery` in `src/db/queries.ts` already feeds the activity grid for sessions with an `endedAt`.
-- The Kala `gym` pose exists and is unused so far.
+### 3.2 Fitness follow-ups (the core is built, see section 2)  [spec section 15]
+- **Rest-over notification.** The rest timer only buzzes in the app. A local notification when it ends (so it works with the screen off) needs a real build, like 3.8. `WorkoutEngine` is where it would go; copy the pattern in `src/features/focus-timer/alerts.ts`.
+- Edit a finished workout (fix a typo in a weight). Delete a past workout.
+- Exercise suggestions while typing a name; an exercise library.
+- Per-exercise progress chart (top weight over time) and a body-weight log.
+- Pounds as a unit option (everything is kilograms today), plate calculator, supersets, notes on a workout.
+- The sessions list on the Fitness tab shows the 5 most recent; add a full history screen.
 
 ### 3.3 Life balance radar  [spec 7.6]
 - Insights shows a "Life balance is coming" placeholder under the grid.
@@ -92,7 +95,7 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - iOS has never been run.
 
 ### 3.8 Needs a real build, not Expo Go
-- **Habit reminders and the timer's end-of-phase notification cannot run in Expo Go on Android** (see gotchas). The code is written and unit-tested but **never seen firing.** Test in a development build or the installed app.
+- **Habit reminders and the focus timer's end-of-phase notification cannot run in Expo Go on Android** (see gotchas). The code is written and unit-tested but **never seen firing.** Test in a development build or the installed app. (The workout rest timer has no notification yet at all, see 3.2.)
 - Options: EAS cloud build (`npx eas-cli build --profile development`, needs an Expo account), or a local build (needs a JDK 17 and Android SDK command-line tools; this PC has neither).
 - Before any release: pick bundle ids (`android.package`, `ios.bundleIdentifier`), real icon/splash, version, and look at the ~70 `npm audit` findings (they appear to be in the template's build tooling).
 
@@ -110,7 +113,8 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 - **Kala:** neutral grey koala; props take the domain color; never blocks anything; Taglish by default, plain English available; Quiet mode drops the jokes; Off hides Kala. Never guilt-trips. The "kala ko tapos na" joke is about the moment, never the person.
 - **Only completed things count as activity:** a count habit needs its goal, a focus session must run to the end, breaks never count.
 - **Streaks count scheduled days only;** rest days never break one; today stays pending until it ends.
-- **Delete means archive** (soft delete) so history survives.
+- **Delete means archive** (soft delete) so history survives. (Workout templates are the exception: deleting one keeps past sessions, which keep their own copy of the sets.)
+- **Weights are in kilograms.** A workout only saves the sets you checked off; unchecked ones are dropped on finish. A first time doing an exercise sets a baseline, not a record.
 - **Two different "focus" features, named apart in code:** `src/features/focus` is **Focus Mode** (hide domains); `src/features/focus-timer` is the **pomodoro timer**.
 
 ---
@@ -129,6 +133,10 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 10. **Dates are local `'YYYY-MM-DD'` strings. Weekdays are 0 (Mon) to 6 (Sun).** `expo-notifications` weekdays are 1 (Sun) to 7 (Sat); convert with `toExpoWeekday`.
 11. **Long shell commands with apostrophes inside heredocs broke bash on this machine.** Use the file tools for multi-line writes.
 12. The timer screen shows an extra **1 min** length chip in development only (`__DEV__`) so a full cycle can be tried quickly.
+13. **Lint rejects `Date.now()` during render** (React Compiler purity). In event handlers use `currentTime()` from `src/lib/use-now.ts`; for render logic use the `now` value from `useNow()`.
+14. **`createdAt` columns have one-second resolution** (`unixepoch() * 1000`), so rows created in the same second tie. Never rely on `createdAt` alone for ordering. Templates are ordered oldest-first so the starter set stays Push, Pull, Leg.
+15. **The emulator keeps its data between runs** (the app's SQLite file survives). That is how a new migration was tested against an existing database. To start clean, clear Expo Go's storage on the emulator.
+16. **Scripted `adb input tap` breaks when the layout moves**: dialogs sit in a different place depending on whether the keyboard is up. Take a screenshot between steps and tap from what you see.
 
 ---
 

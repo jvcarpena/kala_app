@@ -307,3 +307,17 @@ A GitHub-style contribution grid on **Insights**, showing how much the user got 
 - **Alert:** one local notification at the moment a phase ends, so you hear about it with the app in the background. Tapping it opens the timer. Not available in Expo Go on Android, where the timer still works.
 - **Keeps the screen on** while a phase is counting down.
 - **Accessibility:** the ring is decorative; the time is a `timer` role element with a spoken label ("18 minutes 42 seconds left") that doesn't re-announce every second.
+
+---
+
+## 15. Fitness
+
+- **Tab:** a card per workout template (name, exercise count, "last done 9 days ago", the exercise names), each with **Start workout**. A running workout shows a "Workout in progress" card with **Resume workout** at the top, and other workouts can't start until it's finished or discarded. **Recent** lists the last 5 finished workouts (date, duration, volume); tap one to reopen its summary. The + button creates a template. Empty state: the weightlifting Kala, "Wala pang workout", **Add push, pull and legs** (three starter templates) and **Create your own**.
+- **Template editor:** a name and a list of exercises, each with sets, reps, weight (empty = bodyweight) and rest seconds, plus move up / down / remove. Blank exercises are dropped on save.
+- **Workout screen:** full screen. Header: minimise, workout name, a running clock and "3 of 13 sets". One card per exercise with "Last time: 4 × 8 @ 57.5 kg". Each set is a row: **Set n, weight, reps, checkbox**. Weight and reps are 48dp buttons that open a number dialog with quick **−/+** buttons (2.5 kg, 1 rep). Completed rows tint in the Health color. Long-press a set to remove it. **Add set** copies the last set; **Add exercise** asks for a name.
+- **Starts from last time.** A new workout fills each set from what you did in that exercise last time (same set number, else the last set); otherwise from the template.
+- **Rest timer:** checking a set starts that exercise's rest (not after the very last set). It docks above Finish as a small draining ring with the time, **+30s** and **Skip**, and buzzes when it ends.
+- **Finish:** asks first if some sets are unchecked ("11 sets you didn't check off won't be saved"). Unchecked sets are dropped. With nothing checked it offers to discard instead.
+- **Summary:** a cheering Kala with a line ("Lakas! 42 min, 12 sets."), **Duration / Volume / Sets**, **personal records** (a trophy and "Bench press: 62.5 kg (was 60 kg)"), and what you did set by set. Volume is reps × kg over completed sets. A record is a heavier top set than anything before it (most reps for bodyweight exercises); the first time doing an exercise is a baseline, not a record.
+- **Floating pill:** while a workout runs, a pill above the tab bar shows the clock and name; tap to resume. It stacks above the focus-timer pill when both exist.
+- **Counts as activity** under Health once finished.

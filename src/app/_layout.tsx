@@ -13,6 +13,7 @@ import { Platform, StatusBar as RNStatusBar, View } from 'react-native';
 
 import { StartupError } from '@/components/startup-error';
 import { TimerEngine } from '@/components/timer-engine';
+import { WorkoutEngine } from '@/components/workout-engine';
 import { db } from '@/db/client';
 import { seedIfEmpty } from '@/db/seed';
 import { configureNotifications, onNotificationOpened } from '@/features/habits/reminders';
@@ -78,6 +79,7 @@ export default function RootLayout() {
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <TimerEngine />
+      <WorkoutEngine />
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
       {/* Android without edge-to-edge (e.g. Expo Go) paints the bar black unless told otherwise. */}
       {Platform.OS === 'android' ? <RNStatusBar backgroundColor={t.colors.bg} /> : null}
@@ -89,6 +91,8 @@ export default function RootLayout() {
         <Stack.Screen name="habit/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="focus-mode" options={{ presentation: 'modal' }} />
         <Stack.Screen name="focus/[taskId]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="workout/template/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="workout/session/[id]" options={{ presentation: 'modal' }} />
       </Stack>
     </View>
   );

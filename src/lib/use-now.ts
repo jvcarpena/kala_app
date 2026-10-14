@@ -20,3 +20,6 @@ export function useNow(enabled: boolean, intervalMs = 1000): number {
   }, [enabled, intervalMs]);
   return now;
 }
+
+/** The current time. For event handlers, where reading the clock is fine (unlike during render). */
+export const currentTime = (): number => Date.now();

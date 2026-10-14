@@ -1,12 +1,24 @@
-import { and, asc, eq, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, ne } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useMemo } from 'react';
 
 import type { ActivityEvent } from '@/features/activity/heatmap';
+import type { HistorySet } from '@/features/fitness/logic';
 
 import { db } from './client';
 import { doneTasksQuery, focusSessionsQuery, habitLogsQuery, toActivityEvents, workoutsQuery } from './queries';
-import { domains, habitLogs, habits, settings, tasks } from './schema';
+import { historyQuery, toHistory } from './repos/workouts';
+import {
+  domains,
+  habitLogs,
+  habits,
+  settings,
+  tasks,
+  templateExercises,
+  workoutSessions,
+  workoutSets,
+  workoutTemplates,
+} from './schema';
 import { DEFAULT_SETTINGS, type Settings } from './settings';
 
 // Each hook subscribes to SQLite, so screens update the moment data changes.
@@ -71,4 +83,44 @@ export function useActivityEvents(): ActivityEvent[] {
   const { data: workouts } = useLiveQuery(workoutsQuery(db));
 
   return useMemo(() => toActivityEvents(doneTasks, logs, focus, workouts), [doneTasks, logs, focus, workouts]);
+}
+
+// ---- Workouts ------------------------------------------------------------------------------
+
+/** Templates with their exercises, in the order you made them. */
+export function useTemplates() {
+  const { data: templates } = useLiveQuery(db.select().from(workoutTemplates).orderBy(asc(workoutTemplates.createdAt)));
+  const { data: exercises } = useLiveQuery(db.select().from(templateExercises).orderBy(asc(templateExercises.sortOrder)));
+  return useMemo(
+    () => templates.map((template) => ({ template, exercises: exercises.filter((e) => e.templateId === template.id) })),
+    [templates, exercises],
+  );
+}
+
+/** Every workout, newest first. Finished ones have an endedAt; at most one is running. */
+export function useWorkoutSessions() {
+  return useLiveQuery(db.select().from(workoutSessions).orderBy(desc(workoutSessions.startedAt))).data;
+}
+
+/** The workout in progress, if any. */
+export function useActiveWorkout() {
+  return useLiveQuery(db.select().from(workoutSessions).where(isNull(workoutSessions.endedAt)).limit(1)).data[0] ?? null;
+}
+
+/** All sets of one workout. */
+export function useWorkoutSets(sessionId: string | undefined) {
+  return useLiveQuery(
+    db
+      .select()
+      .from(workoutSets)
+      .where(eq(workoutSets.sessionId, sessionId ?? ''))
+      .orderBy(asc(workoutSets.exerciseOrder), asc(workoutSets.setIndex)),
+    [sessionId],
+  ).data;
+}
+
+/** Completed sets from finished workouts, for "last time" and personal records. */
+export function useWorkoutHistory(): HistorySet[] {
+  const { data } = useLiveQuery(historyQuery(db));
+  return useMemo(() => toHistory(data), [data]);
 }

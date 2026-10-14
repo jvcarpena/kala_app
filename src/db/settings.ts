@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 
+import type { RestTimer } from '@/features/fitness/logic';
 import type { ActiveTimer } from '@/features/focus-timer/timer';
 
 import type { Db } from './client';
@@ -18,6 +19,8 @@ export type Settings = {
   pomodoro: { focusMin: number; breakMin: number };
   /** The running, paused or just-finished focus/break phase. Null when no timer is active. */
   activeTimer: ActiveTimer | null;
+  /** Rest countdown after a completed set in a workout. Null when not resting. */
+  restTimer: RestTimer | null;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -27,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   focusPreset: null,
   pomodoro: { focusMin: 25, breakMin: 5 },
   activeTimer: null,
+  restTimer: null,
 };
 
 export async function getSetting<K extends keyof Settings>(db: Db, key: K): Promise<Settings[K]> {
