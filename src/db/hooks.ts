@@ -4,10 +4,19 @@ import { useMemo } from 'react';
 
 import type { ActivityEvent } from '@/features/activity/heatmap';
 import { activeDomains, effectiveHiddenIds } from '@/features/domains/logic';
+import type { BalanceSources, WorkoutRow } from '@/features/insights/balance';
 import type { HistorySet } from '@/features/fitness/logic';
 
 import { db } from './client';
-import { doneTasksQuery, focusSessionsQuery, habitLogsQuery, toActivityEvents, workoutsQuery } from './queries';
+import {
+  doneTasksQuery,
+  finishedWorkoutsQuery,
+  focusMinutesQuery,
+  focusSessionsQuery,
+  habitLogsQuery,
+  toActivityEvents,
+  workoutsQuery,
+} from './queries';
 import { inboxNotesQuery } from './repos/notes';
 import { historyQuery, toHistory } from './repos/workouts';
 import {
@@ -107,6 +116,25 @@ export function useActivityEvents(): ActivityEvent[] {
   const { data: workouts } = useLiveQuery(workoutsQuery(db));
 
   return useMemo(() => toActivityEvents(doneTasks, logs, focus, workouts), [doneTasks, logs, focus, workouts]);
+}
+
+/** Everything the life-balance radar reads: timed sessions, tasks, habits and their logs. */
+export function useBalanceSources(): BalanceSources {
+  const { data: focus } = useLiveQuery(focusMinutesQuery(db));
+  const { data: workoutRows } = useLiveQuery(finishedWorkoutsQuery(db));
+  const tasks = useTasks();
+  const habits = useHabits();
+  const logs = useHabitLogs();
+  return useMemo(
+    () => ({
+      focus,
+      workouts: workoutRows.filter((w): w is WorkoutRow => w.endedAt !== null),
+      tasks,
+      habits,
+      logs,
+    }),
+    [focus, workoutRows, tasks, habits, logs],
+  );
 }
 
 // ---- Workouts ------------------------------------------------------------------------------

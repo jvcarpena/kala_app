@@ -32,7 +32,7 @@ npx expo start --android                                 # other terminal, proje
 
 ## 2. What is built and working
 
-Everything below was exercised on the emulator unless marked otherwise. **242 tests**, `tsc` and `expo lint` all pass.
+Everything below was exercised on the emulator unless marked otherwise. **266 tests**, `tsc` and `expo lint` all pass.
 
 | Feature | Where | Notes |
 |---|---|---|
@@ -49,6 +49,7 @@ Everything below was exercised on the emulator unless marked otherwise. **242 te
 | **Capture sheet + Inbox** | `src/app/capture.tsx`, `src/app/inbox.tsx`, `src/components/{inbox-button,domain-chips,segmented}.tsx`, `src/db/repos/notes.ts`, `src/features/notes/logic.ts` | The + on **Today, Tasks and Insights** opens a bottom sheet with **Note** (default, keyboard up) · **Task** (title, domain, energy, due, "More options" opens the full editor) · **Log** (today's habits, same controls as the Habits tab). Habits and Fitness keep their own + editors. Cancel, backdrop tap or Android back with a non-empty draft asks "Discard this?". Today's header has an **Inbox** icon with a count badge. The Inbox lists unprocessed notes: **Turn into task** opens the task editor prefilled (first line is the title, the rest goes to notes) and saving creates the task and marks the note processed **in one transaction**; **Archive** marks it processed with no task. |
 | **Settings** | `src/app/settings.tsx`, `src/app/domain/[id].tsx`, `src/db/repos/domains.ts`, `src/features/domains/logic.ts`, `src/components/{swatches,icon-grid,settings-button}.tsx` | A gear in Today's header opens Settings. **Companion:** Chatty / Quiet / Off and Taglish / English with a live preview line. **Life domains:** add, rename, change icon (16) and color (8: the four built-ins plus four custom), move up/down, and **archive**. An archived domain leaves every picker, list and Focus Mode; its open tasks and habits are hidden (the confirm dialog says how many) and come back on **Restore**; its history and activity-grid squares stay. The last active domain can't be archived. The Focus chip on Today shrinks to an icon while Focus Mode is off, to make room in the header. |
 | **Backup** | `src/features/backup/{format,io}.ts`, `src/db/repos/backup.ts`, `src/db/schema-version.ts`, Backup section of `src/app/settings.tsx` | **Settings → Export backup** writes every table to `kala-backup-YYYY-MM-DD.json` (cache folder) and opens the share sheet (Drive, email, Files). **Restore from backup** picks a file, checks it, shows what's in it ("From Thu 15 Oct 2026 · 5 domains, 3 tasks, …"), asks "Replace all your data?", then replaces everything **in one transaction**: if any row is rejected nothing changes. A running timer or rest countdown isn't backed up, and is cleared on restore. Older backups import (new columns take their defaults); newer ones are refused; a file with no active domain is refused. Before replacing, the current data is saved to `kala-before-restore.json` in the app's storage (developer recovery only: no screen reads it). Exercised on the emulator: export through the share sheet, a valid restore, a damaged file, a newer-version file, and a file with a broken reference. |
+| **Life balance radar** | `src/features/insights/balance.ts`, `src/components/{balance-radar,balance-table}.tsx`, `src/app/(tabs)/insights.tsx` | Under the activity grid on Insights: week picker (Monday start, back only), a one-line summary ("Health up 40 min on last week, Study down 25%."), a **Time / Done %** toggle, a radar with one axis per active domain (this week solid, the week before dashed, both ink; domain color only on the labels), and a sortable table that carries every number. **Minutes:** completed focus sessions (planned length), finished workouts (capped at 3 h), and the estimate of tasks finished that week (0 without one). **Done %:** tasks due that week plus scheduled habit days up to today (today only once met; days before a habit existed don't count); "–" when nothing was due. Time scales to the bigger week; Done % is absolute. Fewer than 3 active domains shows only the table. Checked on the emulator in light and dark. |
 | **Companion copy** | `src/features/companion/copy.ts` | All of Kala's lines, Taglish or English, Chatty/Quiet/Off. Every line has a test. |
 | **Test setup** | `src/test/make-db.ts` | Real in-memory SQLite (better-sqlite3) with the app's migrations, so repos and queries are tested against real SQL. |
 
@@ -71,9 +72,10 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - Pounds as a unit option (everything is kilograms today), plate calculator, supersets, notes on a workout.
 - The sessions list on the Fitness tab shows the 5 most recent; add a full history screen.
 
-### 3.3 Life balance radar  [spec 7.6]
-- Insights shows a "Life balance is coming" placeholder under the grid.
-- Plan: `src/features/insights/radar.ts`. For the chosen week (Monday start) compute per domain minutes (completed focus sessions + workout durations + estimates of finished tasks) and completion rate (tasks done / due + habit hit-rate), normalise, draw a radar with `react-native-svg`. This week solid, last week dashed, week picker, **a table underneath as the accessible fallback**, and a one-line plain summary on top.
+### 3.3 Life balance follow-ups (the radar is built, see section 2)
+- In **Done %** a domain with nothing due ("–") is drawn at the centre, the same spot as 0%. The label and table say "–", but the shape doesn't tell them apart.
+- No per-day breakdown or longer trends (a month view, a line over weeks).
+- Focus sessions count their planned length; a session with a pause doesn't record the actual time spent.
 
 ### 3.4 Backup follow-ups (the core is built, see section 2)
 - **Habit reminders after a restore** are cancelled and re-scheduled from the backup, but that can't run in Expo Go on Android, so it is **untested** (needs a real build, 3.8).
@@ -156,6 +158,7 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 25. **`adb root` restarts the device's adb service and drops `adb reverse` tunnels**, so the app suddenly shows "Cannot connect to Expo CLI". Run `adb reverse tcp:8081 tcp:8081` again. (`adb root` works on this emulator and lets you pull the app's files: set `MSYS_NO_PATHCONV=1` in Git Bash so device paths aren't rewritten. Exported files are under `/data/user/0/host.exp.exponent/cache/ExperienceData/…`.)
 26. **Android's file picker shows `adb push`ed files under Downloads, not Recent.** Push test backups to `/sdcard/Download/` and open Downloads in the picker's side menu. The picker's file order changes between opens: look before you tap.
 27. **A backup's `schemaVersion` is the number of migrations** (`src/db/schema-version.ts`, from the generated journal). When a future migration isn't purely additive (renames or removes a column), add a step to `upgradeBackup()` in `src/features/backup/format.ts`.
+28. **Fast refresh can load a file between two edits** and show a red "Property doesn't exist" error for code that is fine once both edits land. Dismiss it (the app reloads) before deciding something is broken.
 
 ---
 

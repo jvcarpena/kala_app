@@ -35,6 +35,22 @@ export const workoutsQuery = (db: Db) =>
     .from(workoutSessions)
     .where(isNotNull(workoutSessions.endedAt));
 
+// The life-balance radar needs durations, which the activity queries above don't carry.
+
+/** Completed focus phases with their planned length (breaks and early stops never count). */
+export const focusMinutesQuery = (db: Db) =>
+  db
+    .select({ domainId: focusSessions.domainId, startedAt: focusSessions.startedAt, plannedMin: focusSessions.plannedMin })
+    .from(focusSessions)
+    .where(and(eq(focusSessions.completed, true), eq(focusSessions.kind, 'focus')));
+
+/** Finished workouts with their start and end. */
+export const finishedWorkoutsQuery = (db: Db) =>
+  db
+    .select({ domainId: workoutSessions.domainId, startedAt: workoutSessions.startedAt, endedAt: workoutSessions.endedAt })
+    .from(workoutSessions)
+    .where(isNotNull(workoutSessions.endedAt));
+
 type Dated = { domainId: string; at: number | null };
 
 /** Merges the four sources into dated events, bucketed by the user's local day. */
