@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ArrowDown, ArrowUp, ArrowCounterClockwise, CaretRight } from 'phosphor-react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,7 +13,10 @@ import { Text } from '@/components/text';
 import { db } from '@/db/client';
 import { useAllDomains, useSettings } from '@/db/hooks';
 import { moveDomain, restoreDomain } from '@/db/repos/domains';
+import { SCHEMA_VERSION } from '@/db/schema-version';
 import { setSetting, type CompanionMode, type Language } from '@/db/settings';
+import { backupSummary, parseBackup, type Backup } from '@/features/backup/format';
+import { applyRestore, pickBackupText, shareBackup } from '@/features/backup/io';
 import { greeting } from '@/features/companion/copy';
 import { COLOR_LABEL, activeDomains, type COLOR_OPTIONS } from '@/features/domains/logic';
 import { haptic } from '@/lib/haptics';
@@ -60,6 +63,64 @@ export default function SettingsScreen() {
   const archived = useMemo(() => all.filter((d) => d.archived), [all]);
 
   const edit = (id: string) => router.push({ pathname: '/domain/[id]', params: { id } });
+
+  const [busy, setBusy] = useState<'export' | 'restore' | null>(null);
+
+  const exportBackup = async () => {
+    setBusy('export');
+    try {
+      if ((await shareBackup(db)) === 'unavailable') {
+        Alert.alert("Can't share files here", 'This device has no way to share a file from Kala.');
+      }
+    } catch {
+      Alert.alert("Couldn't export your data", 'Try again. Nothing on this phone was changed.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const replaceWith = async (backup: Backup) => {
+    setBusy('restore');
+    try {
+      const { reminders } = await applyRestore(db, backup, voice);
+      haptic('success');
+      Alert.alert(
+        'Backup restored',
+        reminders === 'denied'
+          ? `${backupSummary(backup)}
+
+Notifications are off, so habit reminders aren't set. Turn them on in your phone settings, then open each habit and save it.`
+          : backupSummary(backup),
+      );
+    } catch {
+      Alert.alert("Couldn't restore this backup", 'Nothing was changed. The file may be damaged.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const restoreBackup = async () => {
+    setBusy('restore');
+    try {
+      const text = await pickBackupText();
+      if (text === null) return;
+      const parsed = parseBackup(text, SCHEMA_VERSION);
+      if (!parsed.ok) {
+        Alert.alert("Couldn't restore", parsed.error);
+        return;
+      }
+      Alert.alert('Replace all your data?', `${backupSummary(parsed.backup)}
+
+Everything on this phone now will be replaced by this backup.`, [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Replace', style: 'destructive', onPress: () => replaceWith(parsed.backup) },
+      ]);
+    } catch {
+      Alert.alert("Couldn't read this file", 'Pick a file exported from Kala (.json).');
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const restore = (id: string, name: string) => {
     haptic('select');
@@ -225,6 +286,15 @@ export default function SettingsScreen() {
             </Card>
           </Section>
         ) : null}
+
+        <Section title="Backup">
+          <Text variant="caption" muted>
+            Your data lives only on this phone. Save a backup file somewhere safe, like Drive, email or Files, so a lost or
+            reset phone doesn&apos;t take it with it.
+          </Text>
+          <Button label="Export backup" onPress={exportBackup} disabled={busy !== null} />
+          <Button variant="secondary" label="Restore from backup" onPress={restoreBackup} disabled={busy !== null} />
+        </Section>
       </ScrollView>
     </View>
   );

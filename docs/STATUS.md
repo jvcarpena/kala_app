@@ -32,7 +32,7 @@ npx expo start --android                                 # other terminal, proje
 
 ## 2. What is built and working
 
-Everything below was exercised on the emulator unless marked otherwise. **219 tests**, `tsc` and `expo lint` all pass.
+Everything below was exercised on the emulator unless marked otherwise. **242 tests**, `tsc` and `expo lint` all pass.
 
 | Feature | Where | Notes |
 |---|---|---|
@@ -48,6 +48,7 @@ Everything below was exercised on the emulator unless marked otherwise. **219 te
 | **Fitness** | `src/features/fitness`, `src/db/repos/workouts.ts`, `app/(tabs)/fitness.tsx`, `app/workout/template/[id].tsx`, `app/workout/session/[id].tsx`, `src/components/{set-row,rest-dock,workout-pill,workout-engine}.tsx` | Workout templates (starter push/pull/legs, or your own), start a workout from one, log sets (tap weight/reps to edit with a -/+ 2.5 kg stepper, checkbox completes a set and starts that exercise's **rest timer** with +30s / Skip), add or remove sets and exercises, "Last time: 4 × 8 @ 57.5 kg" under each exercise, and each set starts from what you did last time. Finish shows a summary (duration, volume, sets) and **personal records**. One workout at a time; a floating pill and a resume card bring you back. Weights in kg. Counts toward the activity grid under Health. |
 | **Capture sheet + Inbox** | `src/app/capture.tsx`, `src/app/inbox.tsx`, `src/components/{inbox-button,domain-chips,segmented}.tsx`, `src/db/repos/notes.ts`, `src/features/notes/logic.ts` | The + on **Today, Tasks and Insights** opens a bottom sheet with **Note** (default, keyboard up) · **Task** (title, domain, energy, due, "More options" opens the full editor) · **Log** (today's habits, same controls as the Habits tab). Habits and Fitness keep their own + editors. Cancel, backdrop tap or Android back with a non-empty draft asks "Discard this?". Today's header has an **Inbox** icon with a count badge. The Inbox lists unprocessed notes: **Turn into task** opens the task editor prefilled (first line is the title, the rest goes to notes) and saving creates the task and marks the note processed **in one transaction**; **Archive** marks it processed with no task. |
 | **Settings** | `src/app/settings.tsx`, `src/app/domain/[id].tsx`, `src/db/repos/domains.ts`, `src/features/domains/logic.ts`, `src/components/{swatches,icon-grid,settings-button}.tsx` | A gear in Today's header opens Settings. **Companion:** Chatty / Quiet / Off and Taglish / English with a live preview line. **Life domains:** add, rename, change icon (16) and color (8: the four built-ins plus four custom), move up/down, and **archive**. An archived domain leaves every picker, list and Focus Mode; its open tasks and habits are hidden (the confirm dialog says how many) and come back on **Restore**; its history and activity-grid squares stay. The last active domain can't be archived. The Focus chip on Today shrinks to an icon while Focus Mode is off, to make room in the header. |
+| **Backup** | `src/features/backup/{format,io}.ts`, `src/db/repos/backup.ts`, `src/db/schema-version.ts`, Backup section of `src/app/settings.tsx` | **Settings → Export backup** writes every table to `kala-backup-YYYY-MM-DD.json` (cache folder) and opens the share sheet (Drive, email, Files). **Restore from backup** picks a file, checks it, shows what's in it ("From Thu 15 Oct 2026 · 5 domains, 3 tasks, …"), asks "Replace all your data?", then replaces everything **in one transaction**: if any row is rejected nothing changes. A running timer or rest countdown isn't backed up, and is cleared on restore. Older backups import (new columns take their defaults); newer ones are refused; a file with no active domain is refused. Before replacing, the current data is saved to `kala-before-restore.json` in the app's storage (developer recovery only: no screen reads it). Exercised on the emulator: export through the share sheet, a valid restore, a damaged file, a newer-version file, and a file with a broken reference. |
 | **Companion copy** | `src/features/companion/copy.ts` | All of Kala's lines, Taglish or English, Chatty/Quiet/Off. Every line has a test. |
 | **Test setup** | `src/test/make-db.ts` | Real in-memory SQLite (better-sqlite3) with the app's migrations, so repos and queries are tested against real SQL. |
 
@@ -74,13 +75,15 @@ Specs for most of these already exist in `MASTER.md` (section numbers in bracket
 - Insights shows a "Life balance is coming" placeholder under the grid.
 - Plan: `src/features/insights/radar.ts`. For the chosen week (Monday start) compute per domain minutes (completed focus sessions + workout durations + estimates of finished tasks) and completion rate (tasks done / due + habit hit-rate), normalise, draw a radar with `react-native-svg`. This week solid, last week dashed, week picker, **a table underneath as the accessible fallback**, and a one-line plain summary on top.
 
-### 3.4 Backup export / import
-- Packages are installed (`expo-file-system`, `expo-sharing`, `expo-document-picker`). Nothing is written yet.
-- Export every table to `{ schemaVersion, exportedAt, data }` JSON, write to the cache dir, open the share sheet. Import: pick file, validate the version, confirm "replace all data", then wipe and insert **in one transaction**. Skip transient settings such as `activeTimer`. Test the round trip with `make-db.ts` (seed, export, wipe, import, deep-equal).
+### 3.4 Backup follow-ups (the core is built, see section 2)
+- **Habit reminders after a restore** are cancelled and re-scheduled from the backup, but that can't run in Expo Go on Android, so it is **untested** (needs a real build, 3.8).
+- Backup is manual: no reminder to back up, no automatic or cloud backup (3.9), no merging a backup into existing data, no encryption.
+- Nothing in the app can open `kala-before-restore.json`; it can only be recovered by pulling the file or importing it with a developer tool. A "Undo last restore" button would use it.
+- Backups are compact JSON with every row; a very large history may need a size warning.
 
 ### 3.5 Settings follow-ups (Companion and Domains are built, see section 2)
 - **Pomodoro lengths** (default focus and break): today they are only picked on the timer's ready screen, so a Settings row would be a second place for the same control.
-- **Notifications status** (reminders can't run in Expo Go on Android), **About** (name, version), and a **Backup** row once 3.4 exists.
+- **Notifications status** (reminders can't run in Expo Go on Android), **About** (name, version), (the Backup section already exists).
 - Drag-to-reorder domains (today: up/down buttons). More than four custom colors, or a free color picker.
 - Deleting a domain for good isn't possible by design (archive only).
 
@@ -149,6 +152,10 @@ Auto-reschedule missed items into free blocks · drag-and-drop time-block calend
 21. **`useDomains()` returns active (non-archived) domains only.** Use `useAllDomains()` when a row must resolve its domain's name or color even if archived (the workout screen, the focus timer), and `useHiddenDomainIds()` (Focus Mode plus archived) wherever a screen filters by hidden domains. Only `focus-mode.tsx` reads the raw `settings.hiddenDomainIds`, so archived ids never get written into it.
 22. **Workouts count under `settings.workoutDomainId`**, written by `seedIfEmpty` at launch (the Health domain). It is stored by id so renaming, recoloring or archiving Health can't move workouts to another domain. If it is archived, new workouts fall back to the first active domain.
 23. **The emulator keeps Android's dark/light setting between runs**, so a cold boot can come up dark. Android shows a white strip under the tab bar in Expo Go (its navigation bar), in both themes.
+24. **Read a picked file with `fetch(uri)`, not `new File(uri).text()`.** In Expo Go on Android the document picker's cache copy lives outside the folders the new `File` API may read, so it fails with "Missing 'READ' permission". Writing the export with `File` and `Paths.cache` works.
+25. **`adb root` restarts the device's adb service and drops `adb reverse` tunnels**, so the app suddenly shows "Cannot connect to Expo CLI". Run `adb reverse tcp:8081 tcp:8081` again. (`adb root` works on this emulator and lets you pull the app's files: set `MSYS_NO_PATHCONV=1` in Git Bash so device paths aren't rewritten. Exported files are under `/data/user/0/host.exp.exponent/cache/ExperienceData/…`.)
+26. **Android's file picker shows `adb push`ed files under Downloads, not Recent.** Push test backups to `/sdcard/Download/` and open Downloads in the picker's side menu. The picker's file order changes between opens: look before you tap.
+27. **A backup's `schemaVersion` is the number of migrations** (`src/db/schema-version.ts`, from the generated journal). When a future migration isn't purely additive (renames or removes a column), add a step to `upgradeBackup()` in `src/features/backup/format.ts`.
 
 ---
 
